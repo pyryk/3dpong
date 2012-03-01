@@ -18,7 +18,6 @@ public class App extends PApplet {
 		context = new SimpleOpenNI(this);
 
 		// enable depthMap generation
-		// enable depthMap generation
 		if (context.enableDepth() == false) {
 			Log.error(this, "Can't open the depthMap, maybe the camera is not connected!");
 			exit();
