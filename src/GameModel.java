@@ -7,6 +7,8 @@ import java.util.List;
  * @author pyry
  *
  */
+
+/*just testing*/
 public class GameModel {
 
 	private List<Player> players = Collections.synchronizedList(new ArrayList<Player>());
