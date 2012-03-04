@@ -12,6 +12,19 @@ import java.util.List;
 public class GameModel {
 
 	private List<Player> players = Collections.synchronizedList(new ArrayList<Player>());
+	boolean isGameOn;
+	
+	public GameModel() {
+		this.isGameOn = false;
+	}
+	
+	public void startGame() {
+		this.isGameOn = true;
+	}
+	
+	public void endGame() {
+		this.isGameOn = false;
+	}
 	
 	public List<Player> getPlayers() {
 		return players;
