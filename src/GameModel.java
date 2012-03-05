@@ -14,15 +14,17 @@ import processing.core.PVector;
 /*just testing*/
 public class GameModel {
 
-	public static final int AREA_DEPTH = 1000;
+	public static final int AREA_DEPTH = 1500;
 
 	private List<Player> players = Collections.synchronizedList(new ArrayList<Player>());
 	private boolean isGameOn;
 	private Ball ball;
+	private Cube cube;
 
 	public GameModel() {
 		this.isGameOn = false;
 		this.ball = new Ball(new PVector(0, 0, -AREA_DEPTH));
+		this.cube = new Cube(1000,1000,AREA_DEPTH+500);
 	}
 
 	public void startGame() {
@@ -56,8 +58,10 @@ public class GameModel {
 	 */
 	public void update(PApplet app) {
 		if(isGameOn) {
+			app.translate(app.width/2, app.height/2, -AREA_DEPTH);
+			this.cube.draw(app);
 			this.ball.update();
-			this.ball.draw(app);
+			this.ball.draw(app);			
 		}
 	}
 }
