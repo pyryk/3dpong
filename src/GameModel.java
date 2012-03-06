@@ -14,7 +14,7 @@ import processing.core.PVector;
 /*just testing*/
 public class GameModel {
 
-	public static final int AREA_DEPTH = 1500;
+	public static final int AREA_DEPTH = 2500;
 
 	private List<Player> players = Collections.synchronizedList(new ArrayList<Player>());
 	private boolean isGameOn;
@@ -23,8 +23,8 @@ public class GameModel {
 
 	public GameModel() {
 		this.isGameOn = false;
-		this.ball = new Ball(new PVector(0, 0, -AREA_DEPTH));
-		this.cube = new Cube(1000,1000,AREA_DEPTH+500);
+		this.ball = new Ball(new PVector(0, 0, -AREA_DEPTH/2));
+		this.cube = new Cube(1000,1000,AREA_DEPTH);
 	}
 
 	public void startGame() {
