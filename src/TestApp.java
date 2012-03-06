@@ -13,8 +13,8 @@ public class TestApp extends PApplet {
 	public static final int bgcolor = 225;
 	
 	public void setup() {
-		this.gameModel = new GameModel();
-		size(1000, 600, P3D);
+		size(screen.width, screen.height, P3D);
+		this.gameModel = new GameModel(this);
 
 		// enable logging
 		Log.enabled = true;

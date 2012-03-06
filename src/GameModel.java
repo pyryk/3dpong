@@ -14,17 +14,22 @@ import processing.core.PVector;
 /*just testing*/
 public class GameModel {
 
-	public static final int AREA_DEPTH = 2500;
-
 	private List<Player> players = Collections.synchronizedList(new ArrayList<Player>());
 	private boolean isGameOn;
 	private Ball ball;
 	private Cube cube;
+	
+	public static final int W_MARGIN = 20;
+	public static final int H_MARGIN = 60;
+	public static final int D_MARGIN = 20;
 
-	public GameModel() {
+	public GameModel(PApplet app) {
 		this.isGameOn = false;
-		this.ball = new Ball(new PVector(0, 0, -AREA_DEPTH/2));
-		this.cube = new Cube(1000,1000,AREA_DEPTH);
+		
+		int areaw = app.width - W_MARGIN;
+		int areah = app.height - H_MARGIN;
+		this.cube = new Cube(areaw, areah);
+		this.ball = new Ball(new PVector(0, 0, -Cube.DEPTH), areaw, areah);
 	}
 
 	public void startGame() {
@@ -58,10 +63,16 @@ public class GameModel {
 	 */
 	public void update(PApplet app) {
 		if(isGameOn) {
-			app.translate(app.width/2, app.height/2, -AREA_DEPTH);
-			this.cube.draw(app);
+			app.pushMatrix();
+			
+			// Shift overall coordinate system to the centre of the display
+			app.translate(app.width/2, app.height/2, -D_MARGIN);
+			// app.camera(1800, 600, 1000, 0, 0, -Cube.DEPTH, 0, 1, -1);
+
 			this.ball.update();
-			this.ball.draw(app);			
+			this.cube.draw(app, ball.getZ());
+			this.ball.draw(app);
+			app.popMatrix();			
 		}
 	}
 }
