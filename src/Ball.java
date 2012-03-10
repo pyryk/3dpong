@@ -3,16 +3,18 @@ import processing.core.PVector;
 
 public class Ball {
 
-	private PVector movement;
-	private PVector position;
-	
+	private PVector movement;	// normalized movement vector
+	private PVector position;	// current position of the ball
+	private int speed;			// current speed of the ball
+
 	private static final int COLOUR = 0xFFDD1111;
 	private static final int RADIUS = 30;
-	
+
 	private int areaw, areah;
-	
+
 	public Ball(PVector startPos, int areaw, int areah) {
-		this.movement = new PVector(5,5,-5);
+		this.movement = new PVector(1,1,-1);
+		this.speed = 15;
 		this.position = startPos;
 		this.areaw = areaw;
 		this.areah = areah;
@@ -21,26 +23,35 @@ public class Ball {
 	/**
 	 * Called for every frame from draw():
 	 */
-	public void update() {
+	public void update(GameModel game) {
 		// Bounce off walls beta
 		if (this.getZ() <= -Cube.DEPTH){
-			this.movement.z = 20;
+			this.movement.z = -this.movement.z;
 		} else if (this.getZ()>= 0){
-			this.movement.z = -20;
+
+			// Collision with a racket (or escape)
+			if(game.hitByRacket(this)) {
+				this.movement.z = -this.movement.z;
+				// TODO: ADD movement vector of the racket to the ball's movement
+			} else {
+				game.ballEscaped();
+			}
 		}
-		
+
 		if (this.getX() <= -areaw/2){
-			this.movement.x = 19;
+			this.movement.x = -this.movement.x;
 		} else if (this.getX()>= areaw/2){
-			this.movement.x = -19;
+			this.movement.x = -this.movement.x;
 		}
-		
+
 		if (this.getY()<= -areah/2){
-			this.movement.y = 18;
+			this.movement.y = -this.movement.y;
 		} else if (this.getY()>= areah/2){
-			this.movement.y = -18;
+			this.movement.y = -this.movement.y;
 		}
-		
+
+		this.movement.normalize();
+		this.movement.mult(this.speed);
 		this.position.add(this.movement);
 	}
 
@@ -51,7 +62,7 @@ public class Ball {
 		app.fill(Ball.COLOUR);
 		app.noStroke();
 		app.sphere(Ball.RADIUS);
-		
+
 		app.popMatrix();
 	}
 

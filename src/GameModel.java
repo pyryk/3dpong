@@ -69,10 +69,19 @@ public class GameModel {
 			app.translate(app.width/2, app.height/2, -D_MARGIN);
 			// app.camera(1800, 600, 1000, 0, 0, -Cube.DEPTH, 0, 1, -1);
 
-			this.ball.update();
+			this.ball.update(this);
 			this.cube.draw(app, ball.getZ());
 			this.ball.draw(app);
 			app.popMatrix();			
 		}
+	}
+
+	public boolean hitByRacket(Ball ball) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public void ballEscaped() {
+		// TODO Auto-generated method stub
 	}
 }
