@@ -3,14 +3,14 @@ public class Log {
 	
 	public static boolean enabled = false;
 
-	public static void debug(Object caller, String msg) {
+	public static void debug(Object caller, Object msg) {
 		if (enabled) {
-			println(caller, msg);
+			println(caller, msg.toString());
 		}
 	}
 	
-	public static void error(Object caller, String msg) {
-		println(caller, msg);
+	public static void error(Object caller, Object msg) {
+		println(caller, msg.toString());
 	}
 	
 	private static void println(Object caller, String msg) {

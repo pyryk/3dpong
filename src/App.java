@@ -1,5 +1,9 @@
+import java.util.ArrayList;
+import java.util.List;
+
 import SimpleOpenNI.*;
 import processing.core.PApplet;
+import processing.core.PVector;
 
 @SuppressWarnings("serial")
 public class App extends PApplet {
@@ -7,10 +11,14 @@ public class App extends PApplet {
 	SimpleOpenNI context;
 
 	GameModel gameModel;
+	
+	PVector referencePosition;
 
 	public void setup() {
 
-		this.gameModel = new GameModel();
+		size(1000, 600, P3D);
+		
+		this.gameModel = new GameModel(this);
 
 		// enable logging
 		Log.enabled = true;
@@ -19,7 +27,8 @@ public class App extends PApplet {
 
 		// enable depthMap generation
 		if (context.enableDepth() == false) {
-			Log.error(this, "Can't open the depthMap, maybe the camera is not connected!");
+			Log.error(this,
+					"Can't open the depthMap, maybe the camera is not connected!");
 			exit();
 			return;
 		}
@@ -31,35 +40,70 @@ public class App extends PApplet {
 		context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
 
 		background(200, 0, 0);
-		size(context.depthWidth() + context.rgbWidth() + 10,
-				context.rgbHeight());
+
+		this.gameModel.startGame();
 	}
 
 	public void draw() {
+		background(255);
+		
 		// update the cam
 		context.update();
 
 		// draw depthImageMap
-		image(context.depthImage(), 0, 0);
+		//image(context.depthImage(), 0, 0);
 
 		// draw camera
-		image(context.rgbImage(), context.depthWidth() + 10, 0);
+		//image(context.rgbImage(), context.depthWidth() + 10, 0);
 
 		// Log.debug(this, "Users found: " + context.getNumberOfUsers());
 
+		updatePlayers();
+		
+	}
+
+	public void updatePlayers() {
 		// draw skeletons
-		//Log.debug(this, "Players: " + this.gameModel.getPlayerCount());
+		// Log.debug(this, "Players: " + this.gameModel.getPlayerCount());
+		List<PVector> allHands = new ArrayList<PVector>();
 		for (Player player : this.gameModel.getPlayers()) {
 			if (context.isTrackingSkeleton(player.getId())) {
-				//Log.debug(this, "Drawing skeleton for player " + player.getId());
+				// Log.debug(this, "Drawing skeleton for player " +
+				// player.getId());
 				drawSkeleton(player.getId());
+				PVector[] hands = getUserHands(player.getId());
+				hands[0] = new PVector();
+				drawUserHands(hands);
 			} else {
 				Log.debug(this,
-					"Not tracking skeleton for player " + player.getId());
+						"Not tracking skeleton for player " + player.getId());
 			}
 
 		}
-
+		
+		if (this.referencePosition == null) {
+			recalibrate();
+		}
+	}
+	
+	public void recalibrate() {
+		Log.debug(this, "Recalibrating racket positions");
+		List<PVector> allHands = new ArrayList<PVector>();
+		for (Player player : this.gameModel.getPlayers()) {
+			// add hands to all hands for calibration
+			PVector[] hands = getUserHands(player.getId());
+			for (PVector hand : hands) {
+				allHands.add(hand);
+			}
+		}
+		
+		// TODO calculate average position for all hands
+		if (allHands.size() > 0) {
+			PVector vect = allHands.get(0);
+			this.referencePosition = new PVector(vect.x, vect.y, vect.z);
+		}
+		
+		
 	}
 
 	public void onNewUser(int userid) {
@@ -76,8 +120,8 @@ public class App extends PApplet {
 	}
 
 	public void onEndCalibration(int userId, boolean successfull) {
-		Log.debug(this, "onEndCalibration - userId: " + userId + ", successfull: "
-				+ successfull);
+		Log.debug(this, "onEndCalibration - userId: " + userId
+				+ ", successfull: " + successfull);
 
 		if (successfull) {
 			// TODO player adding only pregame
@@ -85,6 +129,10 @@ public class App extends PApplet {
 			this.gameModel.addPlayer(new Player(userId));
 			context.startTrackingSkeleton(userId);
 			Log.debug(this, "User added to players.");
+			
+			// recalibrate positions
+			// TODO this should only be done when game is not on
+			this.referencePosition = null;
 		} else {
 			Log.debug(this, "  Failed to calibrate user !!!");
 			Log.debug(this, "  Start pose detection");
@@ -146,6 +194,44 @@ public class App extends PApplet {
 				SimpleOpenNI.SKEL_RIGHT_KNEE);
 		context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_KNEE,
 				SimpleOpenNI.SKEL_RIGHT_FOOT);
+	}
+
+	public PVector[] getUserHands(int userid) {
+		PVector leftHand = new PVector();
+		PVector rightHand = new PVector();
+		PVector leftHandWorld = new PVector();
+		PVector rightHandWorld = new PVector();
+		context.getJointPositionSkeleton(userid, SimpleOpenNI.SKEL_LEFT_HAND,
+				leftHand);
+		context.getJointPositionSkeleton(userid, SimpleOpenNI.SKEL_RIGHT_HAND,
+				rightHand);
+		context.convertProjectiveToRealWorld(leftHand, leftHandWorld);
+		context.convertProjectiveToRealWorld(rightHand, rightHandWorld);
+		PVector[] hands = { leftHandWorld, rightHandWorld };
+		Log.debug(this, "Left hand " + hands[0]);
+		Log.debug(this, "Right hand " + hands[1]);
+		return hands;
+	}
+	
+	public void drawUserHands(PVector[] hands) {
+		stroke(0);
+		fill(0);
+		for(PVector hand : hands) {
+			pushMatrix();
+			PVector position = new PVector();
+			if (this.referencePosition != null) {
+				position.x = hand.x-this.referencePosition.x;
+				position.y = hand.y-this.referencePosition.y;
+				position.z = hand.z-this.referencePosition.z;
+			} else {
+				position = hand;
+			}
+			Log.debug(this, "Drawing racket " + hand);
+			
+			translate(position.x, position.y, position.x);
+			box(30);
+			popMatrix();
+		}
 	}
 
 }
