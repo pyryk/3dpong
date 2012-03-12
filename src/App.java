@@ -1,8 +1,10 @@
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import SimpleOpenNI.*;
 import processing.core.PApplet;
+import processing.core.PImage;
 import processing.core.PVector;
 
 @SuppressWarnings("serial")
@@ -14,9 +16,11 @@ public class App extends PApplet {
 	
 	PVector referencePosition;
 
+	PVector debugPos = new PVector(0,0,0);
+	
 	public void setup() {
 
-		size(1000, 600, P3D);
+		size(screen.width, screen.height, P3D);
 		
 		this.gameModel = new GameModel(this);
 
@@ -47,6 +51,8 @@ public class App extends PApplet {
 	public void draw() {
 		background(255);
 		
+		this.gameModel.update(this);
+		
 		// update the cam
 		context.update();
 
@@ -54,8 +60,11 @@ public class App extends PApplet {
 		//image(context.depthImage(), 0, 0);
 
 		// draw camera
-		//image(context.rgbImage(), context.depthWidth() + 10, 0);
-
+		PImage rgb = context.rgbImage();
+		//rgb.resize(rgb.width/2, rgb.height/2);
+		image(rgb, 0, 0);
+		//background(255, 25);
+		
 		// Log.debug(this, "Users found: " + context.getNumberOfUsers());
 
 		updatePlayers();
@@ -72,8 +81,9 @@ public class App extends PApplet {
 				// player.getId());
 				drawSkeleton(player.getId());
 				PVector[] hands = getUserHands(player.getId());
-				hands[0] = new PVector();
-				drawUserHands(hands);
+				player.setRacketPositions(hands);
+				
+				drawUserHands(player.getRacketPositions());
 			} else {
 				Log.debug(this,
 						"Not tracking skeleton for player " + player.getId());
@@ -81,7 +91,7 @@ public class App extends PApplet {
 
 		}
 		
-		if (this.referencePosition == null) {
+		if (this.referencePosition == null && this.gameModel.getPlayerCount() > 0) {
 			recalibrate();
 		}
 	}
@@ -207,7 +217,8 @@ public class App extends PApplet {
 				rightHand);
 		context.convertProjectiveToRealWorld(leftHand, leftHandWorld);
 		context.convertProjectiveToRealWorld(rightHand, rightHandWorld);
-		PVector[] hands = { leftHandWorld, rightHandWorld };
+		//PVector[] hands = { leftHandWorld, rightHandWorld };
+		PVector[] hands = { leftHand, rightHand, debugPos };
 		Log.debug(this, "Left hand " + hands[0]);
 		Log.debug(this, "Right hand " + hands[1]);
 		return hands;
@@ -215,22 +226,64 @@ public class App extends PApplet {
 	
 	public void drawUserHands(PVector[] hands) {
 		stroke(0);
-		fill(0);
 		for(PVector hand : hands) {
+			
 			pushMatrix();
+			// Shift overall coordinate system to the centre of the display
+			translate(width/2, height/2, -GameModel.D_MARGIN);
+			//popMatrix();
+			
+			//
 			PVector position = new PVector();
-			if (this.referencePosition != null) {
+			if (false && this.referencePosition != null) {
 				position.x = hand.x-this.referencePosition.x;
 				position.y = hand.y-this.referencePosition.y;
 				position.z = hand.z-this.referencePosition.z;
 			} else {
 				position = hand;
 			}
-			Log.debug(this, "Drawing racket " + hand);
+			//position.x = 200.0f;
+			//position.y = 200.0f;
+			//position.z = -1700.0f;
+			//position = debugPos;
 			
-			translate(position.x, position.y, position.x);
-			box(30);
+			Log.debug(this, "Reference pos is "+this.referencePosition);
+			Log.debug(this, "Kinect \"Real\" pos is " + hand);
+			
+			
+			Log.debug(this, "Drawing racket " + position);
+			
+			//pushMatrix();
+			translate(-position.x, -position.y, 0);
+			box(100,100,30);
 			popMatrix();
+		}
+	}
+	
+	@Override
+	public void keyPressed(KeyEvent e) {
+		super.keyPressed(e);
+		switch (e.getKeyCode()) {
+		case KeyEvent.VK_LEFT:
+			debugPos.x += 10;
+			break;
+		case KeyEvent.VK_RIGHT:
+			debugPos.x -= 10;
+			break;
+		case KeyEvent.VK_UP:
+			debugPos.y += 10;
+			break;
+		case KeyEvent.VK_DOWN:
+			debugPos.y -= 10;
+			break;
+		case KeyEvent.VK_W:
+			debugPos.z -= 100;
+			break;
+		case KeyEvent.VK_S:
+			debugPos.z += 100;
+			break;
+		default:
+			break;
 		}
 	}
 

@@ -87,6 +87,8 @@ public class GameModel {
 			}else{
 				app.camera((float)Math.sqrt(cam)-20,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
 			}
+			app.textSize(24);
+			app.text(this.getPlayerCount() + " players", -100, -100, 200);
 			this.ball.update(this);
 			this.cube.draw(app, ball.getZ());
 			this.ball.draw(app);
