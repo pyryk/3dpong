@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import processing.core.PApplet;
 import processing.core.PVector;
 
@@ -11,13 +12,16 @@ public class Ball {
 	private static final int RADIUS = 30;
 
 	private int areaw, areah;
+	
+	private ArrayList<Flame> flames;
 
 	public Ball(PVector startPos, int areaw, int areah) {
 		this.movement = new PVector(1,1,-1);
-		this.speed = 15;
+		this.speed = 30;
 		this.position = startPos;
 		this.areaw = areaw;
 		this.areah = areah;
+		flames = new ArrayList();
 	}
 
 	/**
@@ -56,8 +60,16 @@ public class Ball {
 	}
 
 	public void draw(PApplet app) {
-		System.out.println(this.position);
+		//System.out.println(this.position);
 		app.pushMatrix();
+		app.noLights();
+		flames.add(new Flame(this.getX(), this.getY(), this.getZ()));
+		for (int i=flames.size()-1;i!=0;i--) {
+		   if (!flames.get(i).draw(app)){
+			   flames.remove(i);
+		   }
+		}
+		app.lights();
 		app.translate(this.getX(), this.getY(), this.getZ());
 		app.fill(Ball.COLOUR);
 		app.noStroke();
