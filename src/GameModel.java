@@ -68,6 +68,8 @@ public class GameModel {
 			// Shift overall coordinate system to the centre of the display
 			app.translate(app.width/2, app.height/2, -D_MARGIN);
 			// app.camera(1800, 600, 1000, 0, 0, -Cube.DEPTH, 0, 1, -1);
+			app.textSize(24);
+			app.text(this.getPlayerCount() + " players", -100, -100, 200);
 
 			this.ball.update(this);
 			this.cube.draw(app, ball.getZ());
