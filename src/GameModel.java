@@ -19,6 +19,7 @@ public class GameModel {
 	private Ball ball;
 	private Cube cube;
 	private int cam;
+	private int cam_mov;
 	private boolean cam_dir;
 	
 	public static final int W_MARGIN = 20;
@@ -33,7 +34,9 @@ public class GameModel {
 		this.cube = new Cube(areaw, areah);
 		this.ball = new Ball(new PVector(0, 0, -Cube.DEPTH), areaw, areah);
 		this.cam = 0;
-		this.cam_dir = false;
+		this.cam_mov = 50;
+		this.cam_dir = true;
+		
 	}
 
 	public void startGame() {
@@ -71,24 +74,28 @@ public class GameModel {
 			
 			// Shift overall coordinate system to the centre of the display
 			app.translate(app.width/2, app.height/2, -D_MARGIN);
-			//move cam
-			if (cam>=30000){
-				cam_dir = false;
-			}else if(cam<=-30000){
-				cam_dir = true;
-			}
-			if (cam_dir){
-				cam+=50;
-			}else{
-				cam-=50;			
-			}
-			if (cam<0){
-				app.camera(-(float)Math.sqrt(Math.abs(cam))+20,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
-			}else{
-				app.camera((float)Math.sqrt(cam)-20,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
-			}
 			app.textSize(24);
 			app.text(this.getPlayerCount() + " players", -100, -100, 200);
+			
+			//move cam			
+			if (cam>=20000){
+				cam_dir = true;
+				cam_mov -= 1;	
+				cam = cam+cam_mov;				
+			}else if(cam<-20000){
+				cam_dir = false;
+				cam_mov += 1;	
+				cam = cam+cam_mov;
+			}else{
+				if (cam_dir){
+					cam = cam-50;
+				}else{
+					cam = cam+50;
+				}
+			}
+			System.out.println(cam);
+			app.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
+
 			this.ball.update(this);
 			this.cube.draw(app, ball.getZ());
 			this.ball.draw(app);
