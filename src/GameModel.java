@@ -22,6 +22,8 @@ public class GameModel {
 	private int cam_mov;
 	private boolean cam_dir;
 	
+	private Player debugPlayer;
+	
 	public static final int W_MARGIN = 20;
 	public static final int H_MARGIN = 60;
 	public static final int D_MARGIN = 20;
@@ -58,11 +60,23 @@ public class GameModel {
 	public int getPlayerCount() {
 		return players.size();
 	}
+	
+	public Player getDebugPlayer() {
+		return this.debugPlayer;
+	}
 
-	public int addPlayer(Player player) {
+	public int addPlayer(Player player, boolean debug) {
 		players.add(player);
+		
+		if (debug) {
+			this.debugPlayer = player;
+		}
 
 		return players.indexOf(player);
+	}
+	
+	public int addPlayer(Player player) {
+		return this.addPlayer(player, false);
 	}
 
 	/**
@@ -74,7 +88,7 @@ public class GameModel {
 			
 			// Shift overall coordinate system to the centre of the display
 			app.translate(app.width/2, app.height/2, -D_MARGIN);
-			app.textSize(24);
+			app.textSize(32);
 			app.text(this.getPlayerCount() + " players", -100, -100, 200);
 			
 			//move cam			

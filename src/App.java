@@ -1,4 +1,6 @@
+import java.awt.Point;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +17,7 @@ public class App extends PApplet {
 	GameModel gameModel;
 	
 	PVector referencePosition;
+	public static boolean KINECT_AVAILABLE = false;
 
 	PVector debugPos = new PVector(0,0,0);
 	
@@ -30,18 +33,31 @@ public class App extends PApplet {
 		context = new SimpleOpenNI(this);
 
 		// enable depthMap generation
-		if (context.enableDepth() == false) {
+		if (KINECT_AVAILABLE && context.enableDepth() == false) {
 			Log.error(this,
 					"Can't open the depthMap, maybe the camera is not connected!");
 			exit();
 			return;
 		}
 
-		// enable camera image generation
-		context.enableRGB();
+		
+		if (KINECT_AVAILABLE) {
+			// enable camera image generation
+			context.enableRGB();
+			// enable skeletons
+			context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
+		} else { // debug mode - use mouse
+			Player player = new Player(0);
+			PVector[] pos = new PVector[1];
+			pos[0] = new PVector(width-mouseX, height-mouseY);
+			player.setRacketPositions(pos);
+			this.gameModel.addPlayer(player, true);
+			
+		}
+		
 
-		// enable skeletons
-		context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
+		
+		
 
 		background(200, 0, 0);
 
@@ -54,15 +70,22 @@ public class App extends PApplet {
 		this.gameModel.update(this);
 		
 		// update the cam
-		context.update();
+		if (KINECT_AVAILABLE) {
+			context.update();
+			
+			// draw camera
+			PImage rgb = context.rgbImage();
+			//rgb.resize(rgb.width/2, rgb.height/2);
+			pushMatrix();
+			scale(0.5f);
+			image(rgb, -width, -height);
+			popMatrix();
+		}
 
 		// draw depthImageMap
 		//image(context.depthImage(), 0, 0);
 
-		// draw camera
-		PImage rgb = context.rgbImage();
-		//rgb.resize(rgb.width/2, rgb.height/2);
-		image(rgb, 0, 0);
+		
 		//background(255, 25);
 		
 		// Log.debug(this, "Users found: " + context.getNumberOfUsers());
@@ -83,6 +106,9 @@ public class App extends PApplet {
 				PVector[] hands = getUserHands(player.getId());
 				player.setRacketPositions(hands);
 				
+				drawUserHands(player.getRacketPositions());
+			} else if(!KINECT_AVAILABLE) {
+				Log.debug(this, "No kinect available - using debug player");
 				drawUserHands(player.getRacketPositions());
 			} else {
 				Log.debug(this,
@@ -284,6 +310,22 @@ public class App extends PApplet {
 			break;
 		default:
 			break;
+		}
+	}
+	
+	@Override
+	public void mouseMoved() {
+		if (this.gameModel.getDebugPlayer() != null) {
+			if (this.gameModel.getDebugPlayer().getRacketPositions().length > 0) {
+				PVector old = this.gameModel.getDebugPlayer().getRacketPositions()[0];
+				PVector[] pos = new PVector[1];
+				pos[0] = new PVector(old.x + pmouseX - mouseX, old.y + pmouseY - mouseY, old.z);
+				Log.debug(this, "Debug player position: " + pos[0]);
+				this.gameModel.getDebugPlayer().setRacketPositions(pos);
+			} else {
+				Log.debug(this, "Debug player found without rackets");
+			}
+			
 		}
 	}
 
