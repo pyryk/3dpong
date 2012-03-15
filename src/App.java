@@ -30,8 +30,10 @@ public class App extends PApplet {
 		// enable logging
 		Log.enabled = true;
 
-		context = new SimpleOpenNI(this);
-
+		if (KINECT_AVAILABLE) {
+			context = new SimpleOpenNI(this);
+		}
+		
 		// enable depthMap generation
 		if (KINECT_AVAILABLE && context.enableDepth() == false) {
 			Log.error(this,
@@ -99,7 +101,7 @@ public class App extends PApplet {
 		// Log.debug(this, "Players: " + this.gameModel.getPlayerCount());
 		List<PVector> allHands = new ArrayList<PVector>();
 		for (Player player : this.gameModel.getPlayers()) {
-			if (context.isTrackingSkeleton(player.getId())) {
+			if (KINECT_AVAILABLE && context.isTrackingSkeleton(player.getId())) {
 				// Log.debug(this, "Drawing skeleton for player " +
 				// player.getId());
 				drawSkeleton(player.getId());
@@ -123,6 +125,10 @@ public class App extends PApplet {
 	}
 	
 	public void recalibrate() {
+		if (!KINECT_AVAILABLE) {
+			return;
+		}
+		
 		Log.debug(this, "Recalibrating racket positions");
 		List<PVector> allHands = new ArrayList<PVector>();
 		for (Player player : this.gameModel.getPlayers()) {
