@@ -4,12 +4,12 @@ import processing.core.PVector;
 
 public class Ball {
 
-	private PVector movement;	// normalized movement vector
+	private PVector movement;	// normalised movement vector
 	private PVector position;	// current position of the ball
 	private int speed;			// current speed of the ball
 
 	private static final int COLOUR = 0xFFDD1111;
-	private static final int RADIUS = 30;
+	public static final int RADIUS = 30;
 
 	private int areaw, areah;
 	
@@ -25,7 +25,7 @@ public class Ball {
 	}
 
 	/**
-	 * Called for every frame from draw():
+	 * Called for every frame from draw()
 	 */
 	public void update(GameModel game) {
 		// Bounce off walls beta
@@ -34,9 +34,10 @@ public class Ball {
 		} else if (this.getZ()>= 0){
 
 			// Collision with a racket (or escape)
-			if(game.hitByRacket(this)) {
+			Racket hit = game.hitByRacket(this);
+			if(hit != null) {
 				this.movement.z = -this.movement.z;
-				// TODO: ADD movement vector of the racket to the ball's movement
+				this.movement.add(hit.getMovement());
 			} else {
 				game.ballEscaped();
 			}

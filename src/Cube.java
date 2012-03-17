@@ -46,8 +46,8 @@ class Cube{
 	}
 
 	void draw(PApplet app, int ballZ){
-		//Draw cube
-
+		
+		// Cube outline
 		app.noFill(); 
 		app.stroke(1);
 		for (int i=0; i<6; i++){
@@ -58,6 +58,7 @@ class Cube{
 			app.endShape();
 		}
 		
+		// Ball depth cue
 		app.stroke(0xFF11DD11);
 		app.beginShape();
 		app.vertex(-w/2, h/2, ballZ);

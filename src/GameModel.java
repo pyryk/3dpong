@@ -82,7 +82,7 @@ public class GameModel {
 	/**
 	 * Called for every frame from draw().
 	 */
-	public void update(PApplet app) {
+	public void update(App app) {
 		if(isGameOn) {
 			app.pushMatrix();
 			
@@ -107,19 +107,29 @@ public class GameModel {
 					cam = cam+50;
 				}
 			}
-			System.out.println(cam);
+			// System.out.println(cam);
 			app.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
 
 			this.ball.update(this);
 			this.cube.draw(app, ball.getZ());
 			this.ball.draw(app);
+			for(Player player : this.players) player.drawRackets(app);
 			app.popMatrix();			
 		}
 	}
 
-	public boolean hitByRacket(Ball ball) {
-		// TODO Auto-generated method stub
-		return true;
+	/**
+	 * Checks if the ball is hit by a Racket in the game.
+	 * @param ball	The ball to be hit
+	 * @return		Racket that hits the ball if there is a hit, null otherwise.
+	 */
+	public Racket hitByRacket(Ball ball) {
+		for(Player p : this.players) {
+			for(Racket r : p.getRackets()) {
+				if(r != null) if(r.hits(ball)) return r;
+			}
+		}
+		return null;
 	}
 
 	public void ballEscaped() {

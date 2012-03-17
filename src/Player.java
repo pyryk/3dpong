@@ -1,41 +1,75 @@
+import java.util.ArrayList;
+import java.util.List;
+
 import processing.core.PVector;
 
 
 public class Player {
 
-	
 	private int id;
-	private PVector[] racketPositions;
-	
+	private List<Racket> rackets;
+
 	public Player(int id) {
 		this.setId(id);
+		this.rackets = new ArrayList<Racket>();
 	}
-	
+
 	public int getId() {
 		return id;
 	}
-	
+
 	public void setId(int id) {
 		this.id = id;
 	}
-	
+
+	public List<Racket> getRackets() {
+		return this.rackets;
+	}
+
 	public PVector[] getRacketPositions() {
+
 		/*PVector[] pos = new PVector[racketPositions.length];
-		
+
 		for (int i=0; i<racketPositions.length; i++) {
 			PVector racket = racketPositions[i];
 			pos[i] = new PVector(racket.x, racket.y, 0);
 		}
 		return pos;*/
-		return this.racketPositions;
+		
+		PVector[] positions = new PVector[rackets.size()];
+		for(int i = 0; i < rackets.size(); i++) {
+			Racket r = rackets.get(i);
+			if(r != null) {
+				positions[i] = r.getPosition();
+			} else {
+				positions[i] = null;
+			}
+		}
+		return positions;
 	}
-	
+
 	public void setRacketPositions(PVector[] positions) {
 		// adjust the z according to the player number
-		for (PVector pos : positions) {
-			pos.z = this.id == 0 ? 0 : -500;			
+		for (int i = 0; i<positions.length; i++) {
+			PVector pos = positions[i];
+			pos.z = this.id == 0 ? 0 : -500;
+			if(rackets.get(i) != null) {
+				rackets.get(i).setPosition(pos);
+			} else {
+				rackets.set(i, new Racket(pos));
+			}
 		}
+
+	}
+
+	public void drawRackets(App app) {
+		for(Racket r : this.rackets) {
+			if(r != null) r.draw(app);
+		}
+	}
+
+	public void addRacket(PVector pos) {
+		this.rackets.add(new Racket(pos));
 		
-		this.racketPositions = positions;
 	}
 }

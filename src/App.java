@@ -19,7 +19,7 @@ public class App extends PApplet {
 	PVector referencePosition;
 	public static boolean KINECT_AVAILABLE = false;
 
-	PVector debugPos = new PVector(0,0,0);
+	Racket debugRacket = new Racket(new PVector(0,0,0));
 	
 	public void setup() {
 
@@ -41,7 +41,6 @@ public class App extends PApplet {
 			exit();
 			return;
 		}
-
 		
 		if (KINECT_AVAILABLE) {
 			// enable camera image generation
@@ -50,16 +49,8 @@ public class App extends PApplet {
 			context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
 		} else { // debug mode - use mouse
 			Player player = new Player(0);
-			PVector[] pos = new PVector[1];
-			pos[0] = new PVector(width-mouseX, height-mouseY);
-			player.setRacketPositions(pos);
-			this.gameModel.addPlayer(player, true);
-			
-		}
-		
-
-		
-		
+			this.gameModel.addPlayer(player, true);	
+		}		
 
 		background(200, 0, 0);
 
@@ -67,10 +58,9 @@ public class App extends PApplet {
 	}
 
 	public void draw() {
+		lights();
 		background(255);
-		
-		this.gameModel.update(this);
-		
+				
 		// update the cam
 		if (KINECT_AVAILABLE) {
 			context.update();
@@ -92,14 +82,15 @@ public class App extends PApplet {
 		
 		// Log.debug(this, "Users found: " + context.getNumberOfUsers());
 
-		updatePlayers();
-		
+		this.updatePlayers();
+		this.gameModel.update(this);
 	}
 
 	public void updatePlayers() {
 		// draw skeletons
 		// Log.debug(this, "Players: " + this.gameModel.getPlayerCount());
 		List<PVector> allHands = new ArrayList<PVector>();
+		
 		for (Player player : this.gameModel.getPlayers()) {
 			if (KINECT_AVAILABLE && context.isTrackingSkeleton(player.getId())) {
 				// Log.debug(this, "Drawing skeleton for player " +
@@ -108,15 +99,12 @@ public class App extends PApplet {
 				PVector[] hands = getUserHands(player.getId());
 				player.setRacketPositions(hands);
 				
-				drawUserHands(player.getRacketPositions());
 			} else if(!KINECT_AVAILABLE) {
 				Log.debug(this, "No kinect available - using debug player");
-				drawUserHands(player.getRacketPositions());
 			} else {
 				Log.debug(this,
 						"Not tracking skeleton for player " + player.getId());
 			}
-
 		}
 		
 		if (this.referencePosition == null && this.gameModel.getPlayerCount() > 0) {
@@ -143,9 +131,7 @@ public class App extends PApplet {
 		if (allHands.size() > 0) {
 			PVector vect = allHands.get(0);
 			this.referencePosition = new PVector(vect.x, vect.y, vect.z);
-		}
-		
-		
+		}		
 	}
 
 	public void onNewUser(int userid) {
@@ -250,69 +236,34 @@ public class App extends PApplet {
 		context.convertProjectiveToRealWorld(leftHand, leftHandWorld);
 		context.convertProjectiveToRealWorld(rightHand, rightHandWorld);
 		//PVector[] hands = { leftHandWorld, rightHandWorld };
-		PVector[] hands = { leftHand, rightHand, debugPos };
+		PVector[] hands = { leftHand, rightHand, debugRacket.getPosition() };
 		Log.debug(this, "Left hand " + hands[0]);
 		Log.debug(this, "Right hand " + hands[1]);
 		return hands;
 	}
 	
-	public void drawUserHands(PVector[] hands) {
-		stroke(0);
-		for(PVector hand : hands) {
-			
-			pushMatrix();
-			// Shift overall coordinate system to the centre of the display
-			translate(width/2, height/2, -GameModel.D_MARGIN);
-			//popMatrix();
-			
-			//
-			PVector position = new PVector();
-			if (false && this.referencePosition != null) {
-				position.x = hand.x-this.referencePosition.x;
-				position.y = hand.y-this.referencePosition.y;
-				position.z = hand.z-this.referencePosition.z;
-			} else {
-				position = hand;
-			}
-			//position.x = 200.0f;
-			//position.y = 200.0f;
-			//position.z = -1700.0f;
-			//position = debugPos;
-			
-			Log.debug(this, "Reference pos is "+this.referencePosition);
-			Log.debug(this, "Kinect \"Real\" pos is " + hand);
-			
-			
-			Log.debug(this, "Drawing racket " + position);
-			
-			//pushMatrix();
-			translate(-position.x, -position.y, 0);
-			box(100,100,30);
-			popMatrix();
-		}
-	}
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
 		super.keyPressed(e);
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_LEFT:
-			debugPos.x += 10;
+			debugRacket.getPosition().x += 10;
 			break;
 		case KeyEvent.VK_RIGHT:
-			debugPos.x -= 10;
+			debugRacket.getPosition().x -= 10;
 			break;
 		case KeyEvent.VK_UP:
-			debugPos.y += 10;
+			debugRacket.getPosition().y += 10;
 			break;
 		case KeyEvent.VK_DOWN:
-			debugPos.y -= 10;
+			debugRacket.getPosition().y -= 10;
 			break;
 		case KeyEvent.VK_W:
-			debugPos.z -= 100;
+			debugRacket.getPosition().z -= 100;
 			break;
 		case KeyEvent.VK_S:
-			debugPos.z += 100;
+			debugRacket.getPosition().z += 100;
 			break;
 		default:
 			break;
@@ -329,9 +280,9 @@ public class App extends PApplet {
 				Log.debug(this, "Debug player position: " + pos[0]);
 				this.gameModel.getDebugPlayer().setRacketPositions(pos);
 			} else {
-				Log.debug(this, "Debug player found without rackets");
+				this.gameModel.getDebugPlayer().addRacket(
+						new PVector(pmouseX - mouseX, pmouseY - mouseY, Racket.Z_POS));
 			}
-			
 		}
 	}
 
