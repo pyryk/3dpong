@@ -32,7 +32,7 @@ public class Ball {
 		if (this.getZ() <= -Cube.DEPTH){
 			this.movement.z = -this.movement.z;
 		} else if (this.getZ()>= 0){
-
+			System.out.println("test2");
 			// Collision with a racket (or escape)
 			Racket hit = game.hitByRacket(this);
 			if(hit != null) {
@@ -40,6 +40,8 @@ public class Ball {
 				this.movement.add(hit.getMovement());
 			} else {
 				game.ballEscaped();
+				this.position = new PVector(0, 0, -Cube.DEPTH);
+				//this.movement.z = -this.movement.z;
 			}
 		}
 

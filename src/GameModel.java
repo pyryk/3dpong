@@ -21,6 +21,8 @@ public class GameModel {
 	private int cam;
 	private int cam_mov;
 	private boolean cam_dir;
+	private int turn;
+	private int hit_count;
 	
 	private Player debugPlayer;
 	
@@ -38,6 +40,7 @@ public class GameModel {
 		this.cam = 0;
 		this.cam_mov = 50;
 		this.cam_dir = true;
+		this.hit_count = 0;
 		
 	}
 
@@ -67,6 +70,7 @@ public class GameModel {
 
 	public int addPlayer(Player player, boolean debug) {
 		players.add(player);
+		this.turn = players.indexOf(player);
 		
 		if (debug) {
 			this.debugPlayer = player;
@@ -76,7 +80,19 @@ public class GameModel {
 	}
 	
 	public int addPlayer(Player player) {
+		this.turn = players.indexOf(player);
 		return this.addPlayer(player, false);
+	}
+	
+	public int getTurn(){
+		return this.turn;
+	}
+	
+	public void setTurn(){
+		this.turn+=1;
+		if (this.turn==this.getPlayerCount()){
+			this.turn = 0;
+		}
 	}
 
 	/**
@@ -84,12 +100,21 @@ public class GameModel {
 	 */
 	public void update(App app) {
 		if(isGameOn) {
+						
 			app.pushMatrix();
 			
 			// Shift overall coordinate system to the centre of the display
 			app.translate(app.width/2, app.height/2, -D_MARGIN);
 			app.textSize(32);
-			app.text(this.getPlayerCount() + " players", -100, -100, 200);
+			app.text(this.getPlayerCount() + " players", -1200, -1020);
+			app.text("Turn: player "+this.players.get(this.getTurn()).getId(), -1000, -1020, 0);
+			app.text("Hits: "+this.hit_count, -700, -1020, 0);
+			app.text("Score: ", -500, -1020, 0);
+			int i = 0;
+			for(Player p : this.players) {
+				app.text(p.getPoints()+" ", i-400, -1020, 0);
+				i+=100;
+			}
 			
 			//move cam			
 			if (cam>=20000){
@@ -124,15 +149,21 @@ public class GameModel {
 	 * @return		Racket that hits the ball if there is a hit, null otherwise.
 	 */
 	public Racket hitByRacket(Ball ball) {
+		this.setTurn();
 		for(Player p : this.players) {
 			for(Racket r : p.getRackets()) {
-				if(r != null) if(r.hits(ball)) return r;
+				if(r != null) if(r.hits(ball)) {
+					this.hit_count+=1;
+					return r;
+				}
 			}
 		}
 		return null;
 	}
 
 	public void ballEscaped() {
+		this.hit_count = 0;
+		this.players.get(this.getTurn()).givePoint();
 		// TODO Auto-generated method stub
 	}
 }

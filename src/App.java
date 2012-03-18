@@ -50,6 +50,8 @@ public class App extends PApplet {
 		} else { // debug mode - use mouse
 			Player player = new Player(0);
 			this.gameModel.addPlayer(player, true);	
+			Player player2 = new Player(1);
+			this.gameModel.addPlayer(player2, true);	
 		}		
 
 		background(200, 0, 0);

@@ -8,10 +8,12 @@ public class Player {
 
 	private int id;
 	private List<Racket> rackets;
+	private int points;
 
 	public Player(int id) {
 		this.setId(id);
 		this.rackets = new ArrayList<Racket>();
+		this.points = 0;
 	}
 
 	public int getId() {
@@ -24,6 +26,14 @@ public class Player {
 
 	public List<Racket> getRackets() {
 		return this.rackets;
+	}
+	
+	public void givePoint() {
+		this.points+=1;
+	}
+	
+	public int getPoints() {
+		return this.points;
 	}
 
 	public PVector[] getRacketPositions() {
