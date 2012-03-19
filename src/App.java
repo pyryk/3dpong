@@ -17,9 +17,8 @@ public class App extends PApplet {
 	GameModel gameModel;
 	
 	PVector referencePosition;
-	public static boolean KINECT_AVAILABLE = true;
-
-	Racket debugRacket = new Racket(new PVector(0,0,0));
+	//public static boolean KINECT_AVAILABLE = true;
+	public static boolean KINECT_AVAILABLE = false;
 	
 	public void setup() {
 
@@ -253,24 +252,6 @@ public class App extends PApplet {
 		this.gameModel.startGame();
 		super.keyPressed(e);
 		switch (e.getKeyCode()) {
-		case KeyEvent.VK_LEFT:
-			debugRacket.getPosition().x += 10;
-			break;
-		case KeyEvent.VK_RIGHT:
-			debugRacket.getPosition().x -= 10;
-			break;
-		case KeyEvent.VK_UP:
-			debugRacket.getPosition().y += 10;
-			break;
-		case KeyEvent.VK_DOWN:
-			debugRacket.getPosition().y -= 10;
-			break;
-		case KeyEvent.VK_W:
-			debugRacket.getPosition().z -= 100;
-			break;
-		case KeyEvent.VK_S:
-			debugRacket.getPosition().z += 100;
-			break;
 		default:
 			break;
 		}
@@ -278,16 +259,16 @@ public class App extends PApplet {
 	
 	@Override
 	public void mouseMoved() {
-		if (this.gameModel.getDebugPlayer() != null) {
-			if (this.gameModel.getDebugPlayer().getRacketPositions().length > 0) {
-				PVector old = this.gameModel.getDebugPlayer().getRacketPositions()[0];
+		Player activePlayer = this.gameModel.getActivePlayer();
+		if (activePlayer != null) {
+			if (activePlayer.getRacketPositions().length > 0) {
+				PVector old = activePlayer.getRacketPositions()[0];
 				PVector[] pos = new PVector[1];
 				pos[0] = new PVector(old.x -(pmouseX - mouseX), old.y -(pmouseY - mouseY), old.z);
 				Log.debug(this, "Debug player position: " + pos[0]);
-				this.gameModel.getDebugPlayer().setRacketPositions(pos);
+				activePlayer.setRacketPositions(pos);
 			} else {
-				this.gameModel.getDebugPlayer().addRacket(
-						new PVector(mouseX, mouseY, Racket.Z_POS));
+				activePlayer.addRacket(new PVector(mouseX, mouseY, Racket.Z_POS));
 			}
 		}
 	}
