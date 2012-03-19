@@ -56,7 +56,7 @@ public class App extends PApplet {
 
 		background(200, 0, 0);
 
-		this.gameModel.startGame();
+		//this.gameModel.startGame();
 	}
 
 	public void draw() {
@@ -247,6 +247,7 @@ public class App extends PApplet {
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
+		this.gameModel.startGame();
 		super.keyPressed(e);
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_LEFT:

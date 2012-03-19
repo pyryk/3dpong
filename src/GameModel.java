@@ -1,8 +1,10 @@
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 import processing.core.PVector;
 
 /**
@@ -103,22 +105,23 @@ public class GameModel {
 						
 			app.pushMatrix();
 			
-			// Shift overall coordinate system to the centre of the display
-			app.translate(app.width/2, app.height/2, -D_MARGIN);
-			app.textSize(32);
-			app.text(this.getPlayerCount() + " players", -1200, -1020);
 			String playerStr;
 			if (this.getPlayerCount() > 0) {
 				playerStr = "Turn: player "+this.players.get(this.getTurn()).getId();
 			} else {
 				playerStr = "Waiting for calibration";
 			}
-			app.text(playerStr, -1000, -1020, 0);
-			app.text("Hits: "+this.hit_count, -700, -1020, 0);
-			app.text("Score: ", -500, -1020, 0);
+			
+			// Shift overall coordinate system to the centre of the display
+			app.translate(app.width/2, app.height/2, -D_MARGIN);
+			app.textSize(32);
+			app.text(this.getPlayerCount() + " players", -1200, -1100);
+			app.text(playerStr, -1000, -1100, 0);
+			app.text("Hits: "+this.hit_count, -700, -1100, 0);
+			app.text("Score: ", -500, -1100, 0);
 			int i = 0;
 			for(Player p : this.players) {
-				app.text(p.getPoints()+" ", i-400, -1020, 0);
+				app.text(p.getPoints()+" ", i-400, -1100, 0);
 				i+=100;
 			}
 			
@@ -146,6 +149,15 @@ public class GameModel {
 			this.ball.draw(app);
 			for(Player player : this.players) player.drawRackets(app);
 			app.popMatrix();			
+		}else{
+			System.out.println("eerwwer");
+			app.fill(0xFFDD1111);
+			app.textSize(32);			
+			app.noStroke();
+			app.text("Score: Score: Score: Score: Score: Score: Score: Score: Score: Score: ",1000,1000,100);
+			app.sphere(500);
+
+			app.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
 		}
 	}
 
@@ -170,6 +182,12 @@ public class GameModel {
 	public void ballEscaped() {
 		this.hit_count = 0;
 		this.players.get(this.getTurn()).givePoint();
+		if (this.players.get(this.getTurn()).getPoints()==3){
+			for(Player p : this.players) {
+				p.resetPoints();
+			}			
+			this.endGame();
+		}
 		// TODO Auto-generated method stub
 	}
 }

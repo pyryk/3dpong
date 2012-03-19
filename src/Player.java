@@ -35,6 +35,10 @@ public class Player {
 	public int getPoints() {
 		return this.points;
 	}
+	
+	public void resetPoints() {
+		this.points = 0;
+	}
 
 	public PVector[] getRacketPositions() {
 
