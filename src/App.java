@@ -15,32 +15,42 @@ public class App extends PApplet {
 	SimpleOpenNI context;
 
 	GameModel gameModel;
-	
+
 	PVector referencePosition;
 	//public static boolean KINECT_AVAILABLE = true;
 	public static boolean KINECT_AVAILABLE = false;
-	
+
+	enum Phase {
+		MENU, INITIALISATION, GAME, END;
+	}
+	private Phase phase;
+	private Mode gameMode;
+
 	public void setup() {
 
 		size(screen.width, screen.height, P3D);
-		
+
 		this.gameModel = new GameModel(this);
+		this.phase = Phase.MENU;
 
 		// enable logging
 		Log.enabled = true;
 
 		if (KINECT_AVAILABLE) {
 			context = new SimpleOpenNI(this);
+			this.gameMode = Mode.TWO_PLAYER;
+		} else {
+			this.gameMode = Mode.MOUSE;
 		}
-		
+
 		// enable depthMap generation
 		if (KINECT_AVAILABLE && context.enableDepth() == false) {
 			Log.error(this,
-					"Can't open the depthMap, maybe the camera is not connected!");
+			"Can't open the depthMap, maybe the camera is not connected!");
 			exit();
 			return;
 		}
-		
+
 		if (KINECT_AVAILABLE) {
 			context.setMirror(true);
 			// enable camera image generation
@@ -51,8 +61,9 @@ public class App extends PApplet {
 			Player player = new Player(0);
 			this.gameModel.addPlayer(player, true);	
 			Player player2 = new Player(1);
-			this.gameModel.addPlayer(player2, true);	
-		}		
+			this.gameModel.addPlayer(player2, true);			
+			Log.debug(this, "No kinect available - using debug player");
+		}
 
 		background(200, 0, 0);
 
@@ -62,37 +73,63 @@ public class App extends PApplet {
 	public void draw() {
 		lights();
 		background(255);
-				
+
 		// update the cam
 		if (KINECT_AVAILABLE) {
 			context.update();
-			
-			// draw camera
-			PImage rgb = context.rgbImage();
-			//rgb.resize(rgb.width/2, rgb.height/2);
-			pushMatrix();
-			scale(0.5f);
-			image(rgb, -width, -height);
-			popMatrix();
+			this.drawCamera();
 		}
 
 		// draw depthImageMap
 		//image(context.depthImage(), 0, 0);
 
-		
-		//background(255, 25);
-		
 		// Log.debug(this, "Users found: " + context.getNumberOfUsers());
 
-		this.updatePlayers();
-		this.gameModel.update(this);
+		this.fill(0xFFDD1111);
+		this.textSize(50);			
+		this.noStroke();
+		switch(this.phase) {
+		case MENU : 
+			this.text("This is 3dPong",100,100,0);
+
+			this.text("Start a "+ this.gameMode + " game",100,300,0);
+			this.text("Select mode",100,400,0);
+			this.text("End game",100,500,0);
+
+			//this.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
+			break;
+		case INITIALISATION:
+			this.text("Put your hands up in the air.",100,100,0);
+			this.drawCamera();
+			break;
+			
+		case END:
+			
+			this.text("Game over",100,100,0);
+			break;
+			
+		case GAME:
+			this.updatePlayers();
+			this.gameModel.update(this);
+			break;
+		}
+	}
+	
+	private void drawCamera() {
+		// draw camera
+		PImage rgb = context.rgbImage();
+		//rgb.resize(rgb.width/2, rgb.height/2);
+		pushMatrix();
+		scale(0.5f);
+		image(rgb, -width, -height);
+		popMatrix();
 	}
 
 	public void updatePlayers() {
 		// draw skeletons
 		// Log.debug(this, "Players: " + this.gameModel.getPlayerCount());
 		List<PVector> allHands = new ArrayList<PVector>();
-		
+
 		for (Player player : this.gameModel.getPlayers()) {
 			if (KINECT_AVAILABLE && context.isTrackingSkeleton(player.getId())) {
 				// Log.debug(this, "Drawing skeleton for player " +
@@ -100,25 +137,23 @@ public class App extends PApplet {
 				drawSkeleton(player.getId());
 				PVector[] hands = getUserHands(player.getId());
 				player.setRacketPositions(hands);
-				
-			} else if(!KINECT_AVAILABLE) {
-				Log.debug(this, "No kinect available - using debug player");
-			} else {
+
+			} else if(KINECT_AVAILABLE) {
 				Log.debug(this,
 						"Not tracking skeleton for player " + player.getId());
 			}
 		}
-		
+
 		if (this.referencePosition == null && this.gameModel.getPlayerCount() > 0) {
 			recalibrate();
 		}
 	}
-	
+
 	public void recalibrate() {
 		if (!KINECT_AVAILABLE) {
 			return;
 		}
-		
+
 		Log.debug(this, "Recalibrating racket positions");
 		List<PVector> allHands = new ArrayList<PVector>();
 		for (Player player : this.gameModel.getPlayers()) {
@@ -128,7 +163,7 @@ public class App extends PApplet {
 				allHands.add(hand);
 			}
 		}
-		
+
 		// TODO calculate average position for all hands
 		if (allHands.size() > 0) {
 			PVector vect = allHands.get(0);
@@ -159,7 +194,7 @@ public class App extends PApplet {
 			this.gameModel.addPlayer(new Player(userId));
 			context.startTrackingSkeleton(userId);
 			Log.debug(this, "User added to players.");
-			
+
 			// recalibrate positions
 			// TODO this should only be done when game is not on
 			this.referencePosition = null;
@@ -245,18 +280,47 @@ public class App extends PApplet {
 		Log.debug(this, "Right hand " + hands[1]);
 		return hands;
 	}
-	
-	
+
+
 	@Override
 	public void keyPressed(KeyEvent e) {
-		this.gameModel.startGame();
 		super.keyPressed(e);
-		switch (e.getKeyCode()) {
-		default:
+
+		switch(this.phase) {
+		case MENU :
+			switch (e.getKeyCode()) {
+			case 'N' :
+				this.startInitialisation();
+				break;
+			case 'M' :
+				this.gameMode = Mode.next(this.gameMode);
+				break;
+			case 'Q' :
+				System.exit(0);
+				break;
+			default:
+				break;
+			}
+			break;
+		case END :
 			break;
 		}
 	}
-	
+
+	private void startInitialisation() {
+		if(this.gameMode == Mode.MOUSE) {
+			this.startGame();
+			return;
+		}
+		
+		this.phase = Phase.INITIALISATION;
+	}
+
+	private void startGame() {
+		this.phase = Phase.GAME;
+		this.gameModel.startGame(this.gameMode);
+	}
+
 	@Override
 	public void mouseMoved() {
 		Player activePlayer = this.gameModel.getActivePlayer();
@@ -272,9 +336,9 @@ public class App extends PApplet {
 			}
 		}
 	}
-	
+
 	public static void main(String args[]) {
-		    PApplet.main(new String[] { "--present", "App" });
+		PApplet.main(new String[] { "--present", "App" });
 	}
 
 }

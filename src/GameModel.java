@@ -18,6 +18,7 @@ public class GameModel {
 
 	private List<Player> players = Collections.synchronizedList(new ArrayList<Player>());
 	private boolean isGameOn;
+	private Mode mode;
 	private Ball ball;
 	private Cube cube;
 	private int cam;
@@ -44,8 +45,9 @@ public class GameModel {
 		
 	}
 
-	public void startGame() {
+	public void startGame(Mode mode) {
 		this.isGameOn = true;
+		this.mode = mode;
 	}
 
 	public void endGame() {
@@ -147,14 +149,6 @@ public class GameModel {
 				player.drawRackets(app, this.getTurn() == j);
 			}
 			app.popMatrix();			
-		}else{
-			app.fill(0xFFDD1111);
-			app.textSize(100);			
-			app.noStroke();
-			app.text("This is 3dPong",100,100,100);
-			//app.sphere(500);
-
-			app.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
 		}
 	}
 

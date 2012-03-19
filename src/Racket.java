@@ -81,8 +81,8 @@ public class Racket {
 		
 		int r = 200 - this.playerID*120;
 		int g = 0 + this.playerID*50;
-		int b = 150 + this.playerID*10;
-		int a = active ? 180 : 20;
+		int b = 150 + this.playerID*30;
+		int a = active ? 180 : 40;
 		
 		app.fill(r,g,b,a); 
 		app.stroke(r,g,b,a);
