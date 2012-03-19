@@ -70,20 +70,20 @@ public class Player {
 			if(rackets.size() > i && rackets.get(i) != null) {
 				rackets.get(i).setPosition(pos);
 			} else {
-				rackets.add(new Racket(pos));
+				rackets.add(new Racket(this.id, pos));
 			}
 		}
 
 	}
 
-	public void drawRackets(App app) {
+	public void drawRackets(App app, boolean active) {
 		for(Racket r : this.rackets) {
-			if(r != null) r.draw(app);
+			if(r != null) r.draw(app, active);
 		}
 	}
 
 	public void addRacket(PVector pos) {
-		this.rackets.add(new Racket(pos));
+		this.rackets.add(new Racket(this.id, pos));
 		
 	}
 }

@@ -23,10 +23,8 @@ public class GameModel {
 	private int cam;
 	private int cam_mov;
 	private boolean cam_dir;
-	private int turn;
+	private int turn;		// index (in list players) of the player whose turn it is currently
 	private int hit_count;
-	
-	private Player debugPlayer;
 	
 	public static final int W_MARGIN = 20;
 	public static final int H_MARGIN = 60;
@@ -62,21 +60,17 @@ public class GameModel {
 		return players.get(id);
 	}
 
+	public Player getActivePlayer() {
+		return this.players.get(this.turn);
+	}
+
 	public int getPlayerCount() {
 		return players.size();
-	}
-	
-	public Player getDebugPlayer() {
-		return this.debugPlayer;
 	}
 
 	public int addPlayer(Player player, boolean debug) {
 		players.add(player);
 		this.turn = players.indexOf(player);
-		
-		if (debug) {
-			this.debugPlayer = player;
-		}
 
 		return players.indexOf(player);
 	}
@@ -115,13 +109,14 @@ public class GameModel {
 			// Shift overall coordinate system to the centre of the display
 			app.translate(app.width/2, app.height/2, -D_MARGIN);
 			app.textSize(32);
-			app.text(this.getPlayerCount() + " players", -1200, -1100);
-			app.text(playerStr, -1000, -1100, 0);
-			app.text("Hits: "+this.hit_count, -700, -1100, 0);
-			app.text("Score: ", -500, -1100, 0);
+			app.fill(0xFF000000);
+			app.text(this.getPlayerCount() + " players", -1200, -1000);
+			app.text(playerStr, -1000, -1000, 0);
+			app.text("Hits: "+this.hit_count, -700, -1000, 0);
+			app.text("Score: ", -500, -1000, 0);
 			int i = 0;
 			for(Player p : this.players) {
-				app.text(p.getPoints()+" ", i-400, -1100, 0);
+				app.text(p.getPoints()+" ", i-400, -1000, 0);
 				i+=100;
 			}
 			
@@ -147,15 +142,17 @@ public class GameModel {
 			this.ball.update(this);
 			this.cube.draw(app, ball.getZ());
 			this.ball.draw(app);
-			for(Player player : this.players) player.drawRackets(app);
+			for(int j = 0; j < this.players.size(); j++) {
+				Player player = this.players.get(j);
+				player.drawRackets(app, this.getTurn() == j);
+			}
 			app.popMatrix();			
 		}else{
-			System.out.println("eerwwer");
 			app.fill(0xFFDD1111);
 			app.textSize(32);			
 			app.noStroke();
 			app.text("Score: Score: Score: Score: Score: Score: Score: Score: Score: Score: ",1000,1000,100);
-			app.sphere(500);
+			//app.sphere(500);
 
 			app.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
 		}

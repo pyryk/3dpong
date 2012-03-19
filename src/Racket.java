@@ -13,20 +13,20 @@ public class Racket {
 	private PVector pos;	// position (centre of the racket)
 	private PVector mov;	// movement (averaged over a few last frames)
 
-	private int fillColor = 0xAAFF2222;
-	private int strokeColor = 0xFFFF2222;
+	private int playerID;
 
 	private int width, height, thickness;
 
-	public Racket() {
+	public Racket(int playerid) {
 		this.mov = new PVector(0,0,0);
 		this.width = 200;
 		this.height = 160;
 		this.thickness = 7;
+		this.playerID = playerid;
 	}
 
-	public Racket(PVector pos) {
-		this();
+	public Racket(int playerid, PVector pos) {
+		this(playerid);
 		this.pos = pos;
 	}
 
@@ -72,10 +72,15 @@ public class Racket {
 		return false;
 	}
 
-	public void draw(App app) {
+	public void draw(App app, boolean active) {
 		
-		app.fill(this.fillColor); 
-		app.stroke(this.strokeColor);
+		int r = 200 - this.playerID*120;
+		int g = 0 + this.playerID*50;
+		int b = 150 + this.playerID*10;
+		int a = active ? 180 : 80;
+		
+		app.fill(r,g,b,a); 
+		app.stroke(r,g,b,240);
 		
 		// app.pushMatrix();
 		// Shift overall coordinate system to the centre of the display
