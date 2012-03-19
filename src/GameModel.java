@@ -149,9 +149,9 @@ public class GameModel {
 			app.popMatrix();			
 		}else{
 			app.fill(0xFFDD1111);
-			app.textSize(32);			
+			app.textSize(100);			
 			app.noStroke();
-			app.text("Score: Score: Score: Score: Score: Score: Score: Score: Score: Score: ",1000,1000,100);
+			app.text("This is 3dPong",100,100,100);
 			//app.sphere(500);
 
 			app.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
