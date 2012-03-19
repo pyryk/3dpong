@@ -180,7 +180,7 @@ public class GameModel {
 		Log.debug(this, "Ball at ["+ b.getX() + ", " + b.getY() + ", " + b.getZ() + "] escaped");
 		for (Player p : this.getPlayers()) {
 			for (Racket r : p.getRackets()) {
-				Log.debug(this, "\t racket at " + r.getPosition());
+				Log.debug(this, "\t racket at " + r.getDimensions()[0] + "; " + r.getDimensions()[1]);
 			}
 		}
 		this.hit_count = 0;

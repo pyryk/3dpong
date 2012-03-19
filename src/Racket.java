@@ -34,7 +34,7 @@ public class Racket {
 		return this.pos;
 	}
 	
-	public PVector[] getRacketDimensions() {
+	public PVector[] getDimensions() {
 		PVector[] dim = {pos, new PVector(pos.x + width, pos.y + height)};
 		return dim;
 	}
