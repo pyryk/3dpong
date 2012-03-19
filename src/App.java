@@ -17,6 +17,7 @@ public class App extends PApplet {
 	GameModel gameModel;
 	
 	PVector referencePosition;
+	//public static boolean KINECT_AVAILABLE = true;
 	public static boolean KINECT_AVAILABLE = false;
 	
 	public void setup() {
@@ -41,6 +42,7 @@ public class App extends PApplet {
 		}
 		
 		if (KINECT_AVAILABLE) {
+			context.setMirror(true);
 			// enable camera image generation
 			context.enableRGB();
 			// enable skeletons
@@ -233,6 +235,8 @@ public class App extends PApplet {
 				leftHand);
 		context.getJointPositionSkeleton(userid, SimpleOpenNI.SKEL_RIGHT_HAND,
 				rightHand);
+		leftHand.y = -leftHand.y;
+		rightHand.y = -rightHand.y;
 		context.convertProjectiveToRealWorld(leftHand, leftHandWorld);
 		context.convertProjectiveToRealWorld(rightHand, rightHandWorld);
 		//PVector[] hands = { leftHandWorld, rightHandWorld };
@@ -260,13 +264,17 @@ public class App extends PApplet {
 			if (activePlayer.getRacketPositions().length > 0) {
 				PVector old = activePlayer.getRacketPositions()[0];
 				PVector[] pos = new PVector[1];
-				pos[0] = new PVector(old.x + pmouseX - mouseX, old.y + pmouseY - mouseY, old.z);
+				pos[0] = new PVector(old.x -(pmouseX - mouseX), old.y -(pmouseY - mouseY), old.z);
 				Log.debug(this, "Debug player position: " + pos[0]);
 				activePlayer.setRacketPositions(pos);
 			} else {
 				activePlayer.addRacket(new PVector(mouseX, mouseY, Racket.Z_POS));
 			}
 		}
+	}
+	
+	public static void main(String args[]) {
+		    PApplet.main(new String[] { "--present", "App" });
 	}
 
 }

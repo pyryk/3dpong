@@ -19,8 +19,8 @@ public class Racket {
 
 	public Racket(int playerid) {
 		this.mov = new PVector(0,0,0);
-		this.width = 200;
-		this.height = 160;
+		this.width = 400;
+		this.height = 320;
 		this.thickness = 7;
 		this.playerID = playerid;
 	}
@@ -32,6 +32,11 @@ public class Racket {
 
 	public PVector getPosition() {
 		return this.pos;
+	}
+	
+	public PVector[] getRacketDimensions() {
+		PVector[] dim = {pos, new PVector(pos.x + width, pos.y + height)};
+		return dim;
 	}
 
 	public void setPosition(PVector newpos) {
@@ -86,14 +91,12 @@ public class Racket {
 		// Shift overall coordinate system to the centre of the display
 		// app.translate(width/2, height/2, -GameModel.D_MARGIN);
 		// popMatrix();
-		
-		Log.debug(this, "Reference pos is " + app.referencePosition);
-		Log.debug(this, "Kinect \"Real\" pos is " + this.pos);		
-		Log.debug(this, "Drawing racket " + this.pos);
+				
+		//Log.debug(this, "Drawing racket " + this.pos);
 		
 		app.pushMatrix();
-		app.translate(-this.pos.x, -this.pos.y, this.pos.z);
-		app.box(width*2,height*2,thickness);
+		app.translate(this.pos.x, this.pos.y, this.pos.z);
+		app.box(width,height,thickness);
 		app.popMatrix();
 		
 		/*

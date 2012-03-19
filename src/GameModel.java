@@ -176,8 +176,19 @@ public class GameModel {
 		return null;
 	}
 
-	public void ballEscaped() {
+	public void ballEscaped(Ball b) {
+		Log.debug(this, "Ball at ["+ b.getX() + ", " + b.getY() + ", " + b.getZ() + "] escaped");
+		for (Player p : this.getPlayers()) {
+			for (Racket r : p.getRackets()) {
+				Log.debug(this, "\t racket at " + r.getPosition());
+			}
+		}
 		this.hit_count = 0;
+		
+		if (this.getPlayerCount() == 0) {
+			return;
+		}
+		
 		this.players.get(this.getTurn()).givePoint();
 		if (this.players.get(this.getTurn()).getPoints()==3){
 			for(Player p : this.players) {
@@ -185,6 +196,5 @@ public class GameModel {
 			}			
 			this.endGame();
 		}
-		// TODO Auto-generated method stub
 	}
 }
