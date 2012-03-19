@@ -82,10 +82,10 @@ public class Racket {
 		int r = 200 - this.playerID*120;
 		int g = 0 + this.playerID*50;
 		int b = 150 + this.playerID*10;
-		int a = active ? 180 : 80;
+		int a = active ? 180 : 20;
 		
 		app.fill(r,g,b,a); 
-		app.stroke(r,g,b,240);
+		app.stroke(r,g,b,a);
 		
 		// app.pushMatrix();
 		// Shift overall coordinate system to the centre of the display
