@@ -38,7 +38,7 @@ public class Ball {
 				this.movement.z = -this.movement.z;
 				this.movement.add(hit.getMovement());
 			} else {
-				game.ballEscaped();
+				game.ballEscaped(this);
 				this.position = new PVector(0, 0, -Cube.DEPTH);
 				//this.movement.z = -this.movement.z;
 			}
