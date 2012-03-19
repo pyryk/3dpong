@@ -283,7 +283,7 @@ public class App extends PApplet {
 				this.gameModel.getDebugPlayer().setRacketPositions(pos);
 			} else {
 				this.gameModel.getDebugPlayer().addRacket(
-						new PVector(pmouseX - mouseX, pmouseY - mouseY, Racket.Z_POS));
+						new PVector(mouseX, mouseY, Racket.Z_POS));
 			}
 		}
 	}

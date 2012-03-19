@@ -107,7 +107,13 @@ public class GameModel {
 			app.translate(app.width/2, app.height/2, -D_MARGIN);
 			app.textSize(32);
 			app.text(this.getPlayerCount() + " players", -1200, -1020);
-			app.text("Turn: player "+this.players.get(this.getTurn()).getId(), -1000, -1020, 0);
+			String playerStr;
+			if (this.getPlayerCount() > 0) {
+				playerStr = "Turn: player "+this.players.get(this.getTurn()).getId();
+			} else {
+				playerStr = "Waiting for calibration";
+			}
+			app.text(playerStr, -1000, -1020, 0);
 			app.text("Hits: "+this.hit_count, -700, -1020, 0);
 			app.text("Score: ", -500, -1020, 0);
 			int i = 0;

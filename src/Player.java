@@ -63,10 +63,10 @@ public class Player {
 		for (int i = 0; i<positions.length; i++) {
 			PVector pos = positions[i];
 			pos.z = this.id == 0 ? 0 : -500;
-			if(rackets.get(i) != null) {
+			if(rackets.size() > i && rackets.get(i) != null) {
 				rackets.get(i).setPosition(pos);
 			} else {
-				rackets.set(i, new Racket(pos));
+				rackets.add(new Racket(pos));
 			}
 		}
 

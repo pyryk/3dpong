@@ -87,7 +87,7 @@ public class Racket {
 		Log.debug(this, "Drawing racket " + this.pos);
 		
 		app.pushMatrix();
-		app.translate(this.pos.x, this.pos.y, this.pos.z);
+		app.translate(-this.pos.x, -this.pos.y, this.pos.z);
 		app.box(width*2,height*2,thickness);
 		app.popMatrix();
 		
