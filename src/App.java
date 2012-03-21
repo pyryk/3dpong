@@ -102,19 +102,19 @@ public class App extends PApplet {
 			this.text("Put your hands up in the air.",100,100,0);
 			this.drawCamera();
 			break;
-			
+
 		case END:
-			
+
 			this.text("Game over",100,100,0);
 			break;
-			
+
 		case GAME:
 			this.updatePlayers();
 			this.gameModel.update(this);
 			break;
 		}
 	}
-	
+
 	private void drawCamera() {
 		// draw camera
 		PImage rgb = context.rgbImage();
@@ -126,26 +126,41 @@ public class App extends PApplet {
 	}
 
 	public void updatePlayers() {
-		// draw skeletons
-		// Log.debug(this, "Players: " + this.gameModel.getPlayerCount());
-		List<PVector> allHands = new ArrayList<PVector>();
-
-		for (Player player : this.gameModel.getPlayers()) {
-			if (KINECT_AVAILABLE && context.isTrackingSkeleton(player.getId())) {
-				// Log.debug(this, "Drawing skeleton for player " +
-				// player.getId());
-				drawSkeleton(player.getId());
-				PVector[] hands = getUserHands(player.getId());
-				player.setRacketPositions(hands);
-
-			} else if(KINECT_AVAILABLE) {
-				Log.debug(this,
-						"Not tracking skeleton for player " + player.getId());
+		if(this.gameMode == Mode.MOUSE) {
+			Player activePlayer = this.gameModel.getActivePlayer();
+			if (activePlayer != null) {
+				if (activePlayer.getRacketPositions().length > 0) {
+					PVector old = activePlayer.getRacketPositions()[0];
+					PVector[] pos = new PVector[1];
+					pos[0] = new PVector(old.x -(pmouseX - mouseX), old.y -(pmouseY - mouseY), old.z);
+					Log.debug(this, "Debug player position: " + pos[0]);
+					activePlayer.setRacketPositions(pos);
+				} else {
+					activePlayer.addRacket(new PVector(mouseX, mouseY, Racket.Z_POS));
+				}
 			}
-		}
+		} else {
+			// draw skeletons
+			// Log.debug(this, "Players: " + this.gameModel.getPlayerCount());
+			List<PVector> allHands = new ArrayList<PVector>();
 
-		if (this.referencePosition == null && this.gameModel.getPlayerCount() > 0) {
-			recalibrate();
+			for (Player player : this.gameModel.getPlayers()) {
+				if (KINECT_AVAILABLE && context.isTrackingSkeleton(player.getId())) {
+					// Log.debug(this, "Drawing skeleton for player " +
+					// player.getId());
+					drawSkeleton(player.getId());
+					PVector[] hands = getUserHands(player.getId());
+					player.setRacketPositions(hands);
+
+				} else if(KINECT_AVAILABLE) {
+					Log.debug(this,
+							"Not tracking skeleton for player " + player.getId());
+				}
+			}
+
+			if (this.referencePosition == null && this.gameModel.getPlayerCount() > 0) {
+				recalibrate();
+			}
 		}
 	}
 
@@ -312,7 +327,7 @@ public class App extends PApplet {
 			this.startGame();
 			return;
 		}
-		
+
 		this.phase = Phase.INITIALISATION;
 	}
 
@@ -323,18 +338,6 @@ public class App extends PApplet {
 
 	@Override
 	public void mouseMoved() {
-		Player activePlayer = this.gameModel.getActivePlayer();
-		if (activePlayer != null) {
-			if (activePlayer.getRacketPositions().length > 0) {
-				PVector old = activePlayer.getRacketPositions()[0];
-				PVector[] pos = new PVector[1];
-				pos[0] = new PVector(old.x -(pmouseX - mouseX), old.y -(pmouseY - mouseY), old.z);
-				Log.debug(this, "Debug player position: " + pos[0]);
-				activePlayer.setRacketPositions(pos);
-			} else {
-				activePlayer.addRacket(new PVector(mouseX, mouseY, Racket.Z_POS));
-			}
-		}
 	}
 
 	public static void main(String args[]) {

@@ -1,4 +1,3 @@
-import processing.core.PConstants;
 import processing.core.PVector;
 
 /**
@@ -7,7 +6,7 @@ import processing.core.PVector;
  *
  */
 public class Racket {
-	
+
 	public static final int Z_POS = 0;
 
 	private PVector pos;	// position (centre of the racket)
@@ -17,11 +16,16 @@ public class Racket {
 
 	private int width, height, thickness;
 
+	// Percentage of the width and height of the Racket that is considered "centre"
+	// of the racket for hitting calculations
+	private float centreSize;
+
 	public Racket(int playerid) {
-		this.mov = new PVector(0,0,0);
-		this.width = 400;
-		this.height = 320;
-		this.thickness = 7;
+		this.mov = new PVector(0,0,-1);
+		this.width = 700;
+		this.height = 620;
+		this.centreSize = (float) 0.5;
+		this.thickness = 5;
 		this.playerID = playerid;
 	}
 
@@ -33,7 +37,11 @@ public class Racket {
 	public PVector getPosition() {
 		return this.pos;
 	}
-	
+
+	public PVector getMovement() {
+		return this.mov;
+	}
+
 	public PVector[] getDimensions() {
 		PVector[] dim = {pos, new PVector(pos.x + width, pos.y + height)};
 		return dim;
@@ -45,21 +53,48 @@ public class Racket {
 		this.pos.z = Racket.Z_POS;
 	}
 
-	public PVector getMovement() {
-		return this.mov;
+	/**
+	 * Returns the direction where the Racket sends a Ball in the given position. This
+	 * is affected by the Racket's speed and the position where the Ball hits the Racket,
+	 * and the final direction also depends on the Ball's movement vector.
+	 * @param position	Position of the Ball when the hit happens
+	 * @return			Direction where the Racket sends the Ball
+	 */
+	public PVector getHitDirection(PVector position) {
+		// Hit position (sides may add up in the corners of the racket)
+		int posweight = 5;
+		PVector hitpos = new PVector(0,0,0);
+		if(position.y > this.pos.y + centreSize*this.height/2) {
+			// Bottom
+			hitpos.add(new PVector(0,posweight,0));
+		}
+		if(position.y < this.pos.y - centreSize*this.height/2) {
+			// Top
+			hitpos.add(new PVector(0,-posweight,0));
+		}
+		if(position.x > this.pos.x + centreSize*this.width/2) {
+			// Right
+			hitpos.add(new PVector(posweight,0,0));
+		}
+		if(position.x < this.pos.x - centreSize*this.width/2) {
+			// Left
+			hitpos.add(new PVector(-posweight,0,0));
+		}
+
+		return hitpos;
 	}
 
 	private void updateMov(PVector pos, PVector newpos) {
 		if(pos == null) return;
-		// TODO: test
-		float weight = (float) 0.5;
 		
+		float weight = (float) 0.3;
+
 		PVector frameMovement = new PVector(newpos.x - pos.x, newpos.y - pos.y, 0);
-		
+
 		float oldMagnitude = this.mov.mag();
 		float frameMagnitude = frameMovement.mag();
 		float newMagnitude = ((1-weight)*oldMagnitude + weight*frameMagnitude)/2;
-		
+
 		this.mov = PVector.add(this.mov, frameMovement);
 		this.mov.normalize();
 		this.mov.mult(newMagnitude);
@@ -78,47 +113,28 @@ public class Racket {
 	}
 
 	public void draw(App app, boolean active) {
-		
-		int r = 200 - this.playerID*120;
-		int g = 0 + this.playerID*50;
-		int b = 150 + this.playerID*30;
+
+		int r = 0 + this.playerID*150;
+		int g = 100 + this.playerID*100;
+		int b = 150 - this.playerID*60;
 		int a = active ? 180 : 40;
-		
+
 		app.fill(r,g,b,a); 
 		app.stroke(r,g,b,a);
-		
+
 		// app.pushMatrix();
 		// Shift overall coordinate system to the centre of the display
 		// app.translate(width/2, height/2, -GameModel.D_MARGIN);
 		// popMatrix();
-				
+
 		//Log.debug(this, "Drawing racket " + this.pos);
-		
+
 		app.pushMatrix();
 		app.translate(this.pos.x, this.pos.y, this.pos.z);
 		app.box(width,height,thickness);
+		app.noFill();
+		app.box(width*centreSize, height*centreSize, thickness);
 		app.popMatrix();
-		
-		/*
-		float frontZ = this.pos.z + this.thickness/2;
-		float leftsideX = this.pos.x - this.width/2;
-		float topY = this.pos.y - this.height/2;
-
-		app.beginShape(PConstants.QUADS);
-		
-		// Front
-		app.vertex(leftsideX, topY, frontZ);
-		
-		// Back
-		
-		// Sides
-		
-		// Top
-
-		// Bottom
-		
-		app.endShape();
-		*/
 	}
 
 }

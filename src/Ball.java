@@ -1,25 +1,30 @@
 import java.util.ArrayList;
+import java.util.Random;
+
 import processing.core.PApplet;
 import processing.core.PVector;
 
 public class Ball {
 
-	private PVector movement;	// normalised movement vector
 	private PVector position;	// current position of the ball
+	private PVector movement;	// normalised movement vector
 	private float speed;		// current speed of the ball
 
 	private static final int COLOUR = 0xFFDD1111;
 	public static final int RADIUS = 30;
 
 	// Threshold for z movement (to make sure the Ball moves enough on the z axis)
-	private static final float Z_MOVEMENT_THRESHOLD = (float) 0.15;
+	private static final float Z_MOVEMENT_THRESHOLD = (float) 0.2;
 
 	private int areaw, areah;
 
 	private ArrayList<Flame> flames;
 
 	public Ball(PVector startPos, int areaw, int areah) {
-		this.movement = new PVector(1,1,0);
+		this.movement = new PVector(
+				(float)Math.random(),
+				(float)Math.random(),
+				(float) 0.5);
 		this.speed = 30;
 		this.position = startPos;
 		this.areaw = areaw;
@@ -32,7 +37,7 @@ public class Ball {
 	 */
 	public void update(GameModel game) {
 		this.bounce(game);		
-
+		
 		// Normalise movement and make sure movement on the z axis is enough
 		this.movement.normalize();
 		if(Math.abs(this.movement.z) < Z_MOVEMENT_THRESHOLD) {
@@ -53,14 +58,15 @@ public class Ball {
 	// Bounce off walls and rackets and things
 	private void bounce(GameModel game) {
 		// Z (back or front)
-		if (this.getZ() <= -Cube.DEPTH){
+		if (this.getZ() < -Cube.DEPTH){
 			this.movement.z = -this.movement.z;
-		} else if (this.getZ()>= 0){
+		} else if (this.getZ()> 0){
 			// Collision with a racket (or escape)
 			Racket hit = game.hitByRacket(this);
 			if(hit != null) {
 				this.movement.z = -this.movement.z;
-				this.movement.add(hit.getMovement());
+				PVector hitDir = hit.getHitDirection(this.position);
+				this.movement.add(hitDir);
 				this.speed += 1;
 			} else {
 				game.ballEscaped(this);
@@ -70,16 +76,16 @@ public class Ball {
 		}
 
 		// X (sides)
-		if (this.getX() <= -areaw/2){
+		if (this.getX() < -areaw/2){
 			this.movement.x = -this.movement.x;
-		} else if (this.getX()>= areaw/2){
+		} else if (this.getX()> areaw/2){
 			this.movement.x = -this.movement.x;
 		}
 
 		// Y (top and bottom)
-		if (this.getY()<= -areah/2){
+		if (this.getY()< -areah/2){
 			this.movement.y = -this.movement.y;
-		} else if (this.getY()>= areah/2){
+		} else if (this.getY()> areah/2){
 			this.movement.y = -this.movement.y;
 		}
 	}

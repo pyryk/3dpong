@@ -33,19 +33,19 @@ public class GameModel {
 
 	public GameModel(PApplet app) {
 		this.isGameOn = false;
-		
-		int areaw = app.width - W_MARGIN;
-		int areah = app.height - H_MARGIN;
-		this.cube = new Cube(areaw, areah);
-		this.ball = new Ball(new PVector(0, 0, -Cube.DEPTH), areaw, areah);
 		this.cam = 0;
 		this.cam_mov = 50;
 		this.cam_dir = true;
 		this.hit_count = 0;
-		
+		int areaw = app.width - W_MARGIN;
+		int areah = app.height - H_MARGIN;
+		this.cube = new Cube(areaw, areah);	
 	}
 
 	public void startGame(Mode mode) {
+		// Restart ball for new random directione etc
+		this.ball = new Ball(new PVector(0, 0, -Cube.DEPTH + Ball.RADIUS), 
+				this.cube.getW(), this.cube.getH());
 		this.isGameOn = true;
 		this.mode = mode;
 	}
@@ -148,7 +148,7 @@ public class GameModel {
 				Player player = this.players.get(j);
 				player.drawRackets(app, this.getTurn() == j);
 			}
-			app.popMatrix();			
+			app.popMatrix();
 		}
 	}
 

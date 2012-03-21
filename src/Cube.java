@@ -5,7 +5,7 @@ class Cube{
 	public static final int DEPTH = 2500;
 
 	PVector[] vertices = new PVector[24];
-	float w, h, d;
+	int w, h, d;
 
 	Cube(int w, int h) {
 		this.w = w;
@@ -43,6 +43,14 @@ class Cube{
 		vertices[21] = new PVector(-w/2,h/2,-d);
 		vertices[22] = new PVector(w/2,h/2,-d);
 		vertices[23] = new PVector(w/2,h/2,0);
+	}
+
+	public int getW() {
+		return this.w;
+	}
+	
+	public int getH() {
+		return this.h;
 	}
 
 	void draw(PApplet app, int ballZ){
