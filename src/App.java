@@ -241,8 +241,8 @@ public class App extends PApplet {
 		context.convertProjectiveToRealWorld(rightHand, rightHandWorld);
 		//PVector[] hands = { leftHandWorld, rightHandWorld };
 		PVector[] hands = { leftHand, rightHand };
-		Log.debug(this, "Left hand " + hands[0]);
-		Log.debug(this, "Right hand " + hands[1]);
+		//Log.debug(this, "Left hand " + hands[0]);
+		//Log.debug(this, "Right hand " + hands[1]);
 		return hands;
 	}
 	

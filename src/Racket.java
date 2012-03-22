@@ -1,3 +1,4 @@
+import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PVector;
 
@@ -76,16 +77,25 @@ public class Racket {
 		}
 		return false;
 	}
-
-	public void draw(App app, boolean active) {
-		
-		int r = 200 - this.playerID*120;
-		int g = 0 + this.playerID*50;
-		int b = 150 + this.playerID*10;
+	
+	public static int[] getColor(int playerID, PApplet app, boolean active) {
+		int r = 200 - playerID*120;
+		int g = 0 + playerID*50;
+		int b = 150 + playerID*10;
 		int a = active ? 180 : 20;
 		
-		app.fill(r,g,b,a); 
-		app.stroke(r,g,b,a);
+		return new int[] {r,g,b,a};
+		
+		
+		//app.stroke(255,0,0,255);
+	}
+
+	public void draw(PApplet app, boolean active) {
+		
+		int[] color = getColor(this.playerID, app, active);
+		
+		app.fill(color[0],color[1],color[2],color[3]); 
+		app.stroke(color[0],color[1],color[2],color[3]);
 		
 		// app.pushMatrix();
 		// Shift overall coordinate system to the centre of the display

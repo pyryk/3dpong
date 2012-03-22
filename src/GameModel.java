@@ -61,6 +61,10 @@ public class GameModel {
 	}
 
 	public Player getActivePlayer() {
+		if (this.getPlayerCount() == 0) {
+			return null;
+		}
+		
 		return this.players.get(this.turn);
 	}
 
@@ -140,7 +144,7 @@ public class GameModel {
 			app.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
 
 			this.ball.update(this);
-			this.cube.draw(app, ball.getZ());
+			this.cube.draw(app, ball.getZ(), this.getTurn());
 			this.ball.draw(app);
 			for(int j = 0; j < this.players.size(); j++) {
 				Player player = this.players.get(j);

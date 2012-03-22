@@ -45,7 +45,15 @@ class Cube{
 		vertices[23] = new PVector(w/2,h/2,0);
 	}
 
-	void draw(PApplet app, int ballZ){
+	void draw(PApplet app, int ballZ, int playerID){
+		
+		int r = 200 - playerID*120;
+		int g = 0 + playerID*50;
+		int b = 150 + playerID*10;
+		int a = 180;
+		
+		/*app.fill(r,g,b,a); 
+		app.stroke(r,g,b,a);*/
 		
 		// Cube outline
 		app.noFill(); 
@@ -59,13 +67,18 @@ class Cube{
 		}
 		
 		// Ball depth cue
-		app.stroke(0xFF11DD11);
+		//app.stroke(0xFF11DD11);
+		int[] color = Racket.getColor(playerID, app, true);
+		app.stroke(color[0],color[1],color[2],color[3]);
+		
+		app.strokeWeight(4f);
 		app.beginShape();
 		app.vertex(-w/2, h/2, ballZ);
 		app.vertex(w/2, h/2, ballZ);
 		app.vertex(w/2, -h/2, ballZ);
 		app.vertex(-w/2, -h/2, ballZ);
 		app.endShape(PConstants.CLOSE);
+		app.strokeWeight(1f);
 	}
 
 }
