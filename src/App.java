@@ -6,6 +6,7 @@ import java.util.List;
 
 import SimpleOpenNI.*;
 import processing.core.PApplet;
+import processing.core.PFont;
 import processing.core.PImage;
 import processing.core.PVector;
 
@@ -20,10 +21,10 @@ public class App extends PApplet {
 	//public static boolean KINECT_AVAILABLE = true;
 	public static boolean KINECT_AVAILABLE = false;
 
-	enum Phase {
+	static enum Phase {
 		MENU, INITIALISATION, GAME, END;
 	}
-	private Phase phase;
+	static Phase phase;
 	private Mode gameMode;
 
 	public void setup() {
@@ -85,8 +86,9 @@ public class App extends PApplet {
 
 		// Log.debug(this, "Users found: " + context.getNumberOfUsers());
 
-		this.fill(0xFFDD1111);
-		this.textSize(50);			
+		PFont font = createFont("DejaVu Sans",50);
+		textFont(font, 50); 
+		this.fill(0xFFDD1111);	
 		this.noStroke();
 		switch(this.phase) {
 		case MENU : 
@@ -104,13 +106,21 @@ public class App extends PApplet {
 			break;
 
 		case END:
-
-			this.text("Game over",100,100,0);
+			camera();
+			int player_count = this.gameModel.getPlayerCount();
+			this.text("Game over.\n\nEnd results:" ,100,100,0);
+			for (int i=0;i<player_count;i++){
+				this.text("Player "+this.gameModel.getPlayer(i).getId() +": "+this.gameModel.getPlayer(i).getPoints()+" points.",100,350+i*100,0);
+			}
+			this.text("Press n for new game, m for menu or q to quit.",100,800,0);
 			break;
 
 		case GAME:
 			this.updatePlayers();
 			this.gameModel.update(this);
+			if (!this.gameModel.isGame()){
+				this.phase = Phase.END;
+			}
 			break;
 		}
 	}
@@ -318,7 +328,19 @@ public class App extends PApplet {
 			}
 			break;
 		case END :
-			break;
+			switch (e.getKeyCode()) {
+			case 'N' :
+				this.startInitialisation();
+				break;
+			case 'M' :
+				this.phase = Phase.MENU;
+				break;
+			case 'Q' :
+				System.exit(0);
+				break;
+			}			
+			default:
+				break;
 		}
 	}
 
