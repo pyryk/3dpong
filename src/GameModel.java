@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
@@ -18,6 +19,7 @@ public class GameModel {
 
 	private List<Player> players = Collections.synchronizedList(new ArrayList<Player>());
 	private boolean isGameOn;
+	private Mode mode;
 	private Ball ball;
 	private Cube cube;
 	private int cam;
@@ -32,24 +34,32 @@ public class GameModel {
 
 	public GameModel(PApplet app) {
 		this.isGameOn = false;
-		
-		int areaw = app.width - W_MARGIN;
-		int areah = app.height - H_MARGIN;
-		this.cube = new Cube(areaw, areah);
-		this.ball = new Ball(new PVector(0, 0, -Cube.DEPTH), areaw, areah);
 		this.cam = 0;
 		this.cam_mov = 50;
 		this.cam_dir = true;
 		this.hit_count = 0;
-		
+		int areaw = app.width - W_MARGIN;
+		int areah = app.height - H_MARGIN;
+		this.cube = new Cube(areaw, areah);	
 	}
 
-	public void startGame() {
+	public void startGame(Mode mode) {
+		// Restart ball for new random directione etc
+		this.ball = new Ball(new PVector(0, 0, -Cube.DEPTH + Ball.RADIUS), 
+				this.cube.getW(), this.cube.getH());
 		this.isGameOn = true;
+		this.mode = mode;
+		for(Player p : this.players) {
+			p.resetPoints();
+		}	
 	}
 
 	public void endGame() {
 		this.isGameOn = false;
+	}
+	
+	public boolean isGame() {
+		return this.isGameOn;
 	}
 
 	public List<Player> getPlayers() {
@@ -101,7 +111,7 @@ public class GameModel {
 	public void update(App app) {
 		if(isGameOn) {
 						
-			app.pushMatrix();
+			//app.pushMatrix();
 			
 			String playerStr;
 			if (this.getPlayerCount() > 0) {
@@ -112,16 +122,17 @@ public class GameModel {
 			
 			// Shift overall coordinate system to the centre of the display
 			app.translate(app.width/2, app.height/2, -D_MARGIN);
-			app.textSize(32);
+			app.textSize(38);
 			app.fill(0xFF000000);
-			app.text(this.getPlayerCount() + " players", -1200, -1000);
-			app.text(playerStr, -1000, -1000, 0);
-			app.text("Hits: "+this.hit_count, -700, -1000, 0);
-			app.text("Score: ", -500, -1000, 0);
+			app.text(this.getPlayerCount() + " players", -app.width, -app.height);
+			System.out.println(app.height);
+			app.text(playerStr, -app.width+app.width/10, -app.height, 0);
+			app.text("Hits: "+this.hit_count, -app.width+3*app.width/10, -app.height, 0);
+			app.text("Score: ", -app.width+5*app.width/10, -app.height, 0);
 			int i = 0;
 			for(Player p : this.players) {
-				app.text(p.getPoints()+" ", i-400, -1000, 0);
-				i+=100;
+				app.text(p.getPoints()+" ", i-app.width+6*app.width/10, -app.height, 0);
+				i+=app.width/20;
 			}
 			
 			//move cam			
@@ -150,15 +161,7 @@ public class GameModel {
 				Player player = this.players.get(j);
 				player.drawRackets(app, this.getTurn() == j);
 			}
-			app.popMatrix();			
-		}else{
-			app.fill(0xFFDD1111);
-			app.textSize(100);			
-			app.noStroke();
-			app.text("This is 3dPong",100,100,100);
-			//app.sphere(500);
-
-			app.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
+			//app.popMatrix();
 		}
 	}
 
@@ -194,10 +197,8 @@ public class GameModel {
 		}
 		
 		this.players.get(this.getTurn()).givePoint();
-		if (this.players.get(this.getTurn()).getPoints()==3){
-			for(Player p : this.players) {
-				p.resetPoints();
-			}			
+		if (this.players.get(this.getTurn()).getPoints()==1){
+		
 			this.endGame();
 		}
 	}
