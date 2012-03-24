@@ -1,11 +1,8 @@
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 import processing.core.PApplet;
-import processing.core.PImage;
 import processing.core.PVector;
 
 /**
@@ -44,14 +41,22 @@ public class GameModel {
 	}
 
 	public void startGame(Mode mode) {
-		// Restart ball for new random directione etc
+		// Restart ball for a new random staring direction etc
 		this.ball = new Ball(new PVector(0, 0, -Cube.DEPTH + Ball.RADIUS), 
 				this.cube.getW(), this.cube.getH());
 		this.isGameOn = true;
 		this.mode = mode;
 		for(Player p : this.players) {
 			p.resetPoints();
-		}	
+		}
+		
+		if(mode == Mode.MOUSE) {
+			Player player1 = new Player(0);
+			this.addPlayer(player1, true);	
+			Player player2 = new Player(1);
+			this.addPlayer(player2, true);			
+			Log.debug(this, "No kinect available - using debug player");
+		}
 	}
 
 	public void endGame() {
@@ -136,24 +141,9 @@ public class GameModel {
 			}
 			
 			//move cam			
-			if (cam>=20000){
-				cam_dir = true;
-				cam_mov -= 1;	
-				cam = cam+cam_mov;				
-			}else if(cam<-20000){
-				cam_dir = false;
-				cam_mov += 1;	
-				cam = cam+cam_mov;
-			}else{
-				if (cam_dir){
-					cam = cam-50;
-				}else{
-					cam = cam+50;
-				}
-			}
-			// System.out.println(cam);
-			app.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
+			this.updateCamera(app);
 
+			// Draw things
 			this.ball.update(this);
 			this.cube.draw(app, ball.getZ(), this.getTurn());
 			this.ball.draw(app);
@@ -163,6 +153,38 @@ public class GameModel {
 			}
 			//app.popMatrix();
 		}
+	}
+
+	private void updateCamera(App app) {
+		if (cam>=20000){
+			cam_dir = true;
+			cam_mov -= 1;	
+			cam = cam+cam_mov;				
+		}else if(cam<-20000){
+			cam_dir = false;
+			cam_mov += 1;	
+			cam = cam+cam_mov;
+		}else{
+			if (cam_dir){
+				cam = cam-50;
+			}else{
+				cam = cam+50;
+			}
+		}
+		// System.out.println(cam);
+		app.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
+	}
+
+	/**
+	 * Transforms screen coordinates (such as mouse position) to the 3D world.
+	 * @param x		Screen x coordinate
+	 * @param y		Screen y coordinate
+	 * @return		Corresponding x and y coordinates in the game's 3D world.
+	 */
+	public PVector get3DCoordinates(int x, int y, App app) {
+		int newx = (x - app.width/2)*2;
+		int newy = (y - app.height/2)*2;
+		return new PVector(newx, newy);
 	}
 
 	/**

@@ -1,6 +1,4 @@
-import java.awt.Point;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +22,8 @@ public class App extends PApplet {
 	static enum Phase {
 		MENU, INITIALISATION, GAME, END;
 	}
-	static Phase phase;
+	
+	private Phase phase;
 	private Mode gameMode;
 
 	public void setup() {
@@ -58,12 +57,6 @@ public class App extends PApplet {
 			context.enableRGB();
 			// enable skeletons
 			context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
-		} else { // debug mode - use mouse
-			Player player = new Player(0);
-			this.gameModel.addPlayer(player, true);	
-			Player player2 = new Player(1);
-			this.gameModel.addPlayer(player2, true);			
-			Log.debug(this, "No kinect available - using debug player");
 		}
 
 		background(200, 0, 0);
@@ -116,7 +109,7 @@ public class App extends PApplet {
 			break;
 
 		case GAME:
-			this.updatePlayers();
+			this.updatePlayers(this);
 			this.gameModel.update(this);
 			if (!this.gameModel.isGame()){
 				this.phase = Phase.END;
@@ -135,16 +128,13 @@ public class App extends PApplet {
 		popMatrix();
 	}
 
-	public void updatePlayers() {
-		if(this.gameMode == Mode.MOUSE) {
+	public void updatePlayers(App app) {
+		if(this.gameMode == Mode.MOUSE && this.gameModel.isGame()) {
 			Player activePlayer = this.gameModel.getActivePlayer();
 			if (activePlayer != null) {
-				if (activePlayer.getRacketPositions().length > 0) {
-					PVector old = activePlayer.getRacketPositions()[0];
-					PVector[] pos = new PVector[1];
-					pos[0] = new PVector(old.x -(pmouseX - mouseX), old.y -(pmouseY - mouseY), old.z);
-					Log.debug(this, "Debug player position: " + pos[0]);
-					activePlayer.setRacketPositions(pos);
+				if (activePlayer.getRacketPositions().length > 0) {					
+					PVector pos = this.gameModel.get3DCoordinates(mouseX, mouseY, app);
+					activePlayer.setRacketPosition(0, pos);
 				} else {
 					activePlayer.addRacket(new PVector(mouseX, mouseY, Racket.Z_POS));
 				}

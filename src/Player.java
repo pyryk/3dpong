@@ -41,14 +41,6 @@ public class Player {
 	}
 
 	public PVector[] getRacketPositions() {
-
-		/*PVector[] pos = new PVector[racketPositions.length];
-
-		for (int i=0; i<racketPositions.length; i++) {
-			PVector racket = racketPositions[i];
-			pos[i] = new PVector(racket.x, racket.y, 0);
-		}
-		return pos;*/
 		
 		PVector[] positions = new PVector[rackets.size()];
 		for(int i = 0; i < rackets.size(); i++) {
@@ -60,6 +52,12 @@ public class Player {
 			}
 		}
 		return positions;
+	}
+
+	public PVector getRacketPosition(int i) {
+		Racket r = this.rackets.get(i);
+		if(r == null) return null;
+		else return r.getPosition();
 	}
 
 	public void setRacketPositions(PVector[] positions) {
@@ -74,6 +72,11 @@ public class Player {
 			}
 		}
 
+	}
+
+	public void setRacketPosition(int i, PVector pos) {
+		Racket r = rackets.get(i);
+		if(r != null) r.setPosition(pos);
 	}
 
 	public void drawRackets(App app, boolean active) {
