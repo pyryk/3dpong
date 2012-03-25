@@ -42,8 +42,7 @@ public class GameModel {
 
 	public void startGame(Mode mode) {
 		// Restart ball for a new random staring direction etc
-		this.ball = new Ball(new PVector(0, 0, -Cube.DEPTH + Ball.RADIUS), 
-				this.cube.getW(), this.cube.getH());
+		this.ball = new Ball(this.cube.getW(), this.cube.getH());
 		this.isGameOn = true;
 		this.mode = mode;
 		/*for(Player p : this.players) {

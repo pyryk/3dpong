@@ -24,8 +24,8 @@ public class Racket {
 
 	public Racket(int playerid) {
 		this.mov = new PVector(0,0,-1);
-		this.width = 700;
-		this.height = 620;
+		this.width = 400;
+		this.height = 300;
 		this.centreSize = (float) 0.5;
 		this.thickness = 5;
 		this.playerID = playerid;
@@ -64,7 +64,7 @@ public class Racket {
 	 */
 	public PVector getHitDirection(PVector position) {
 		// Hit position (sides may add up in the corners of the racket)
-		int posweight = 5;
+		int posweight = 8;
 		PVector hitpos = new PVector(0,0,0);
 		if(position.y > this.pos.y + centreSize*this.height/2) {
 			// Bottom

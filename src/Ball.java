@@ -18,6 +18,8 @@ public class Ball {
 
 	// Threshold for z movement (to make sure the Ball moves enough on the z axis)
 	private static final float Z_MOVEMENT_THRESHOLD = (float) 0.2;
+	
+	private static final PVector STARTPOS = new PVector(0, 0, -Cube.DEPTH + Ball.RADIUS);
 
 	private int areaw, areah;
 
@@ -25,13 +27,8 @@ public class Ball {
 	private AudioClip hit_sound;
 	private AudioClip fail_sound;
 
-	public Ball(PVector startPos, int areaw, int areah) {
-		this.movement = new PVector(
-				(float)Math.random(),
-				(float)Math.random(),
-				(float) 0.5);
+	public Ball(int areaw, int areah) {
 		this.speed = 30;
-		this.position = startPos;
 		this.areaw = areaw;
 		this.areah = areah;
 		flames = new ArrayList<Flame>();
@@ -39,6 +36,15 @@ public class Ball {
 			hit_sound = Applet.newAudioClip(new URL("file:beep.wav"));
 			fail_sound = Applet.newAudioClip(new URL("file:beep2.wav"));
 		} catch (MalformedURLException e) {}
+		this.start();
+	}
+
+	private void start() {
+		this.movement = new PVector(
+				(float)Math.random(),
+				(float)Math.random(),
+				(float) 0.5);
+		this.position = new PVector(Ball.STARTPOS.x, Ball.STARTPOS.y, Ball.STARTPOS.z);
 	}
 
 	/**
@@ -81,7 +87,7 @@ public class Ball {
 			} else {
 				fail_sound.play();
 				game.ballEscaped(this);
-				this.position = new PVector(0, 0, -Cube.DEPTH);
+				this.start();	// reset position and movement direction
 				return;
 			}
 		}
