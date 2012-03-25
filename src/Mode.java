@@ -22,4 +22,13 @@ public enum Mode {
 			return MOUSE;
 		}
 	}
+	
+	public int getNoOfPlayers() {
+		switch(this) {
+		case SINGLE_PLAYER: return 1;
+		case TWO_PLAYER: return 2;
+		case MOUSE: return 2;
+		default: return 0;
+		}
+	}
 }

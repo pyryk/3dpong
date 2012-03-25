@@ -69,11 +69,11 @@ public class App extends PApplet {
 	public void draw() {
 		lights();
 		background(255);
-
+		
 		// update the cam
 		if (KINECT_AVAILABLE) {
 			context.update();
-			this.drawCamera();
+			this.drawCamera(0.5f);
 		}
 
 		// draw depthImageMap
@@ -117,7 +117,9 @@ public class App extends PApplet {
 			break;
 		case INITIALISATION:
 			this.text("Put your hands up in the air.",100,100,0);
-			this.drawCamera();
+			this.drawRecognisedPlayers();
+			this.drawCamera(0.5f);
+			this.checkInitializationDone();
 			break;
 
 		case END:
@@ -159,14 +161,26 @@ public class App extends PApplet {
 		}
 	}
 
-	private void drawCamera() {
+	private void drawCamera(float scale) {
 		// draw camera
 		PImage rgb = context.rgbImage();
 		//rgb.resize(rgb.width/2, rgb.height/2);
 		pushMatrix();
-		scale(0.5f);
-		image(rgb, -width, -height);
+		scale(scale);
+		image(rgb, width, height);
 		popMatrix();
+	}
+	
+	private void drawRecognisedPlayers() {
+		this.text("Players recognised: " + this.gameModel.getPlayerCount()
+				+ "/" + this.gameMode.getNoOfPlayers(), 100,150,0);
+	}
+	
+	private void checkInitializationDone() {
+		if (this.gameModel.getPlayerCount() >= this.gameMode.getNoOfPlayers()) {
+			Log.debug(this, "Initialization done");
+			this.startGame();
+		}
 	}
 
 	public void updatePlayers(App app) {
@@ -244,7 +258,7 @@ public class App extends PApplet {
 		Log.debug(this, "onEndCalibration - userId: " + userId
 				+ ", successfull: " + successfull);
 
-		if (successfull) {
+		if (successfull && this.gameMode.getNoOfPlayers() >= this.gameModel.getPlayerCount()) {
 			// TODO player adding only pregame
 			Log.debug(this, "User calibrated !!!");
 			this.gameModel.addPlayer(new Player(userId));

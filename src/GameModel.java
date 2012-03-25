@@ -48,8 +48,8 @@ public class GameModel {
 		/*for(Player p : this.players) {
 			p.resetPoints();
 		}*/
-		players.clear();
 		if(mode == Mode.MOUSE) {
+			players.clear();
 			Player player1 = new Player(0);
 			this.addPlayer(player1, true);	
 			Player player2 = new Player(1);
