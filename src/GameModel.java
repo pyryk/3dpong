@@ -46,10 +46,10 @@ public class GameModel {
 				this.cube.getW(), this.cube.getH());
 		this.isGameOn = true;
 		this.mode = mode;
-		for(Player p : this.players) {
+		/*for(Player p : this.players) {
 			p.resetPoints();
-		}
-		
+		}*/
+		players.clear();
 		if(mode == Mode.MOUSE) {
 			Player player1 = new Player(0);
 			this.addPlayer(player1, true);	
@@ -127,10 +127,10 @@ public class GameModel {
 			
 			// Shift overall coordinate system to the centre of the display
 			app.translate(app.width/2, app.height/2, -D_MARGIN);
-			app.textSize(38);
+			app.textSize(35);
 			app.fill(0xFF000000);
 			app.text(this.getPlayerCount() + " players", -app.width, -app.height);
-			System.out.println(app.height);
+			//System.out.println(app.height);
 			app.text(playerStr, -app.width+app.width/10, -app.height, 0);
 			app.text("Hits: "+this.hit_count, -app.width+3*app.width/10, -app.height, 0);
 			app.text("Score: ", -app.width+5*app.width/10, -app.height, 0);
@@ -219,7 +219,7 @@ public class GameModel {
 		}
 		
 		this.players.get(this.getTurn()).givePoint();
-		if (this.players.get(this.getTurn()).getPoints()==1){
+		if (this.players.get(this.getTurn()).getPoints()==3){
 		
 			this.endGame();
 		}

@@ -1,3 +1,6 @@
+import java.applet.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -19,6 +22,8 @@ public class Ball {
 	private int areaw, areah;
 
 	private ArrayList<Flame> flames;
+	private AudioClip hit_sound;
+	private AudioClip fail_sound;
 
 	public Ball(PVector startPos, int areaw, int areah) {
 		this.movement = new PVector(
@@ -30,6 +35,10 @@ public class Ball {
 		this.areaw = areaw;
 		this.areah = areah;
 		flames = new ArrayList<Flame>();
+		try {
+			hit_sound = Applet.newAudioClip(new URL("file:beep.wav"));
+			fail_sound = Applet.newAudioClip(new URL("file:beep2.wav"));
+		} catch (MalformedURLException e) {}
 	}
 
 	/**
@@ -64,11 +73,13 @@ public class Ball {
 			// Collision with a racket (or escape)
 			Racket hit = game.hitByRacket(this);
 			if(hit != null) {
+				hit_sound.play();
 				this.movement.z = -this.movement.z;
 				PVector hitDir = hit.getHitDirection(this.position);
 				this.movement.add(hitDir);
 				this.speed += 1;
 			} else {
+				fail_sound.play();
 				game.ballEscaped(this);
 				this.position = new PVector(0, 0, -Cube.DEPTH);
 				return;

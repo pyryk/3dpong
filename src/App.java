@@ -23,6 +23,7 @@ public class App extends PApplet {
 		MENU, INITIALISATION, GAME, END;
 	}
 	
+	private int highlight_row;
 	private Phase phase;
 	private Mode gameMode;
 
@@ -30,6 +31,7 @@ public class App extends PApplet {
 
 		size(screen.width, screen.height, P3D);
 
+		this.highlight_row = 1;
 		this.gameModel = new GameModel(this);
 		this.phase = Phase.MENU;
 
@@ -81,14 +83,34 @@ public class App extends PApplet {
 
 		PFont font = createFont("DejaVu Sans",50);
 		textFont(font, 50); 
-		this.fill(0xFFDD1111);	
+
 		this.noStroke();
 		switch(this.phase) {
 		case MENU : 
-			this.text("This is 3dPong",100,100,0);
 
+			//this.noFill();
+			//this.stroke(20);
+			//this.rect(100, 30, 500, 100);
+			//this.fill(0x00000011);
+			this.fill(0x00000011);
+			this.text("This is 3dPong",100,100,0);
+			if (highlight_row==1){
+				this.fill(0xFFDD1111);	
+			}else{
+				this.fill(0x00000011);	
+			}
 			this.text("Start a "+ this.gameMode + " game",100,300,0);
+			if (highlight_row==2){
+				this.fill(0xFFDD1111);	
+			}else{
+				this.fill(0x00000011);	
+			}
 			this.text("Select mode",100,400,0);
+			if (highlight_row==3){
+				this.fill(0xFFDD1111);	
+			}else{
+				this.fill(0x00000011);	
+			}
 			this.text("End game",100,500,0);
 
 			//this.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
@@ -101,11 +123,30 @@ public class App extends PApplet {
 		case END:
 			camera();
 			int player_count = this.gameModel.getPlayerCount();
+			this.fill(0x00000011);
 			this.text("Game over.\n\nEnd results:" ,100,100,0);
 			for (int i=0;i<player_count;i++){
 				this.text("Player "+this.gameModel.getPlayer(i).getId() +": "+this.gameModel.getPlayer(i).getPoints()+" points.",100,350+i*100,0);
 			}
-			this.text("Press n for new game, m for menu or q to quit.",100,800,0);
+			
+			if (highlight_row==1){
+				this.fill(0xFFDD1111);	
+			}else{
+				this.fill(0x00000011);	
+			}
+			this.text("Play again",100,600,0);
+			if (highlight_row==2){
+				this.fill(0xFFDD1111);	
+			}else{
+				this.fill(0x00000011);	
+			}
+			this.text("Go to menu",100,700,0);
+			if (highlight_row==3){
+				this.fill(0xFFDD1111);	
+			}else{
+				this.fill(0x00000011);	
+			}
+			this.text("End game",100,800,0);
 			break;
 
 		case GAME:
@@ -313,6 +354,23 @@ public class App extends PApplet {
 			case 'Q' :
 				System.exit(0);
 				break;
+			case ENTER :
+				if (highlight_row==1){
+					this.startInitialisation();
+				}else if(highlight_row==2){
+					this.gameMode = Mode.next(this.gameMode);
+				}else if(highlight_row==3){
+					System.exit(0);
+				}
+				break;
+			case DOWN :
+				highlight_row+=1;
+				if (highlight_row==4){highlight_row=1;}
+				break;
+			case UP :
+				highlight_row-=1;
+				if (highlight_row==0){highlight_row=3;}
+				break;
 			default:
 				break;
 			}
@@ -328,6 +386,23 @@ public class App extends PApplet {
 			case 'Q' :
 				System.exit(0);
 				break;
+			case ENTER :
+				if (highlight_row==1){
+					this.startInitialisation();
+				}else if(highlight_row==2){
+					this.phase = Phase.MENU;
+				}else if(highlight_row==3){
+					System.exit(0);
+				}
+				break;
+			case DOWN :
+				highlight_row+=1;
+				if (highlight_row==4){highlight_row=1;}
+				break;
+			case UP :
+				highlight_row-=1;
+				if (highlight_row==0){highlight_row=3;}
+				break;				
 			}			
 			default:
 				break;
