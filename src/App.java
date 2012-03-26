@@ -24,7 +24,7 @@ public class App extends PApplet {
 	static enum Phase {
 		MENU, INITIALISATION, GAME, END;
 	}
-	
+
 	private int highlight_row;
 	private Phase phase;
 	private Mode gameMode;
@@ -72,7 +72,7 @@ public class App extends PApplet {
 		
 		lights();
 		background(255);
-		
+
 		// update the cam
 		if (KINECT_AVAILABLE) {
 			context.update();
@@ -88,39 +88,40 @@ public class App extends PApplet {
 		textFont(font, 50); 
 
 		this.noStroke();
+		int texty = 100;
+		int textx = 100;
+		int lineheight = 70;
 		switch(this.phase) {
-		case MENU : 
-
-			//this.noFill();
-			//this.stroke(20);
-			//this.rect(100, 30, 500, 100);
-			//this.fill(0x00000011);
-			
+		case MENU :
 			this.fill(0x00000011);
-			this.text("This is 3dPong",100,100,0);
+			this.text("This is 3dPong",textx,texty,0);
 			if (highlight_row==1){
 				this.fill(0xFFDD1111);	
 			}else{
 				this.fill(0x00000011);	
 			}
-			this.text("Start a "+ this.gameMode + " game",100,300,0);
+			
+			texty += lineheight*2;
+			this.text("Start a "+ this.gameMode + " game",textx,texty,0);
 			if (highlight_row==2){
 				this.fill(0xFFDD1111);	
 			}else{
 				this.fill(0x00000011);	
 			}
-			this.text("Select mode",100,400,0);
+			texty += lineheight;
+			this.text("Select mode",textx,texty,0);
 			if (highlight_row==3){
 				this.fill(0xFFDD1111);	
 			}else{
 				this.fill(0x00000011);	
 			}
-			this.text("End game",100,500,0);
+			texty += lineheight;
+			this.text("End game",textx,texty,0);
 
 			//this.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
 			break;
 		case INITIALISATION:
-			this.text("Put your hands up in the air.",100,100,0);
+			this.text("Put your hands up in the air.",textx,texty,0);
 			if (this.initialisationDoneAt != 0L) {
 				double secondsToStart = Math.max(Math.floor((2000 + initialisationDoneAt - millis())/100.0)/10, 0);
 				this.text("Game starts in " + secondsToStart ,100,200,0);
@@ -134,38 +135,46 @@ public class App extends PApplet {
 			camera();
 			int player_count = this.gameModel.getPlayerCount();
 			this.fill(0x00000011);
-			this.text("Game over.\n\nEnd results:" ,100,100,0);
+			this.text("Game over." ,textx,texty,0);
+			texty += lineheight;
+			this.text("End results:", textx, texty, 0);
+
 			int i = 0;
 			for (Player p : this.gameModel.getPlayers()){
 				this.text("Player " + p.getId() + ": "+p.getPoints()+" points.",100,350+i*100,0);
 				i++;
 			}
-			
+
 			if (highlight_row==1){
 				this.fill(0xFFDD1111);	
 			}else{
 				this.fill(0x00000011);	
 			}
-			this.text("Play again",100,600,0);
+			texty += lineheight * 2;
+			this.text("Play again",textx,texty,0);
 			if (highlight_row==2){
 				this.fill(0xFFDD1111);	
 			}else{
 				this.fill(0x00000011);	
 			}
-			this.text("Go to menu",100,700,0);
+			texty += lineheight;
+			this.text("Go to menu",textx,texty,0);
 			if (highlight_row==3){
 				this.fill(0xFFDD1111);	
-			}else{
+			} else {
 				this.fill(0x00000011);	
 			}
-			this.text("End game",100,800,0);
+			texty += lineheight;
+			this.text("End game",textx,texty,0);
 			break;
 
 		case GAME:
-			this.updatePlayers(this);
-			this.gameModel.update(this);
-			if (!this.gameModel.isGame()){
-				this.phase = Phase.END;
+			if(this.gameModel.isGame()) {
+				this.updatePlayers(this);
+				this.gameModel.update(this);
+				if (!this.gameModel.isGame()){
+					this.phase = Phase.END;
+				}
 			}
 			break;
 		}
@@ -180,12 +189,12 @@ public class App extends PApplet {
 		image(rgb, width, height);
 		popMatrix();
 	}
-	
+
 	private void drawRecognisedPlayers() {
 		this.text("Players recognised: " + this.gameModel.getPlayerCount()
 				+ "/" + this.gameMode.getNoOfPlayers(), 100,150,0);
 	}
-	
+
 	private void checkInitializationDone() {
 		if (this.gameModel.getPlayerCount() >= this.gameMode.getNoOfPlayers()) {
 			Log.debug(this, "Initialization done");
@@ -434,8 +443,8 @@ public class App extends PApplet {
 				if (highlight_row==0){highlight_row=3;}
 				break;				
 			}			
-			default:
-				break;
+		default:
+			break;
 		}
 	}
 

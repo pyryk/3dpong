@@ -27,21 +27,21 @@ public class Player {
 	public List<Racket> getRackets() {
 		return this.rackets;
 	}
-	
+
 	public void givePoint() {
 		this.points+=1;
 	}
-	
+
 	public int getPoints() {
 		return this.points;
 	}
-	
+
 	public void resetPoints() {
 		this.points = 0;
 	}
 
 	public PVector[] getRacketPositions() {
-		
+
 		PVector[] positions = new PVector[rackets.size()];
 		for(int i = 0; i < rackets.size(); i++) {
 			Racket r = rackets.get(i);
@@ -87,6 +87,6 @@ public class Player {
 
 	public void addRacket(PVector pos) {
 		this.rackets.add(new Racket(this.id, pos));
-		
+
 	}
 }
