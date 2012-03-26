@@ -134,7 +134,7 @@ public class App extends PApplet {
 
 			for (int i=0;i<player_count;i++){
 				texty += lineheight;
-				this.text("Player "+this.gameModel.getPlayer(i).getId() +": "+this.gameModel.getPlayer(i).getPoints()+" points.",textx,texty,0);
+				this.text(Colour.values()[this.gameModel.getPlayer(i).getId()] +": "+this.gameModel.getPlayer(i).getPoints()+" points.",textx,texty,0);
 			}
 
 			if (highlight_row==1){
