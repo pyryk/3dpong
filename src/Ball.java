@@ -16,8 +16,8 @@ public class Ball {
 	private static final int COLOUR = 0xFFDD1111;
 	public static final int RADIUS = 30;
 
-	// Threshold for z movement (to make sure the Ball moves enough on the z axis)
-	private static final float Z_MOVEMENT_THRESHOLD = (float) 0.2;
+	private static final float Y_MOVEMENT_LIMIT = (float) 0.4;
+	private static final float X_MOVEMENT_LIMIT = (float) 0.4;
 	
 	private static final PVector STARTPOS = new PVector(0, 0, -Cube.DEPTH + Ball.RADIUS);
 
@@ -42,10 +42,11 @@ public class Ball {
 	}
 
 	private void start() {
-		this.movement = new PVector(
-				(float)Math.random(),
-				(float)Math.random(),
-				(float) 0.5);
+		float x = 1 - (float) Math.random()*2;
+		float y = 1 - (float) Math.random()*2;
+		float z = 1 + (float) Math.random();
+
+		this.movement = new PVector(x, y, z);
 		this.position = new PVector(Ball.STARTPOS.x, Ball.STARTPOS.y, Ball.STARTPOS.z);
 	}
 
@@ -56,13 +57,23 @@ public class Ball {
 		this.bounce(game);		
 		
 		// Normalise movement and make sure movement on the z axis is enough
+		// and the movement along x and y axes not too steep
 		this.movement.normalize();
-		if(Math.abs(this.movement.z) < Z_MOVEMENT_THRESHOLD) {
-			boolean negative = this.movement.z < 0;
+		if(Math.abs(this.movement.x) > X_MOVEMENT_LIMIT) {
+			boolean negative = this.movement.x < 0;
 			if(negative) {
-				this.movement.z = -Z_MOVEMENT_THRESHOLD;
+				this.movement.x = -X_MOVEMENT_LIMIT;
 			} else {
-				this.movement.z = Z_MOVEMENT_THRESHOLD;				
+				this.movement.x = X_MOVEMENT_LIMIT;				
+			}
+			this.movement.normalize();
+		}
+		if(Math.abs(this.movement.y) > Y_MOVEMENT_LIMIT) {
+			boolean negative = this.movement.y < 0;
+			if(negative) {
+				this.movement.y = -Y_MOVEMENT_LIMIT;
+			} else {
+				this.movement.y = Y_MOVEMENT_LIMIT;				
 			}
 			this.movement.normalize();
 		}
@@ -85,7 +96,7 @@ public class Ball {
 				this.movement.z = -this.movement.z;
 				PVector hitDir = hit.getHitDirection(this.position);
 				this.movement.add(hitDir);
-				this.speed += 1;
+				this.speed += 1.5;
 			} else {
 				fail_sound.play();
 				game.ballEscaped(this);
