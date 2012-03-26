@@ -35,7 +35,9 @@ public class Ball {
 		try {
 			hit_sound = Applet.newAudioClip(new URL("file:beep.wav"));
 			fail_sound = Applet.newAudioClip(new URL("file:beep2.wav"));
-		} catch (MalformedURLException e) {}
+		} catch (MalformedURLException e) {
+			Log.debug(this, e.getLocalizedMessage());
+		}
 		this.start();
 	}
 

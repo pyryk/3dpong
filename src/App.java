@@ -16,8 +16,8 @@ public class App extends PApplet {
 	GameModel gameModel;
 
 	PVector referencePosition;
-	//public static boolean KINECT_AVAILABLE = true;
-	public static boolean KINECT_AVAILABLE = false;
+	public static boolean KINECT_AVAILABLE = true;
+	//public static boolean KINECT_AVAILABLE = false;
 
 	static enum Phase {
 		MENU, INITIALISATION, GAME, END;
