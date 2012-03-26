@@ -14,6 +14,8 @@ public class App extends PApplet {
 	SimpleOpenNI context;
 
 	GameModel gameModel;
+	
+	long initialisationDoneAt = 0L;
 
 	PVector referencePosition;
 	public static boolean KINECT_AVAILABLE = true;
@@ -67,13 +69,14 @@ public class App extends PApplet {
 	}
 
 	public void draw() {
+		
 		lights();
 		background(255);
 		
 		// update the cam
 		if (KINECT_AVAILABLE) {
 			context.update();
-			this.drawCamera(0.5f);
+			//this.drawCamera(0.5f);
 		}
 
 		// draw depthImageMap
@@ -92,6 +95,7 @@ public class App extends PApplet {
 			//this.stroke(20);
 			//this.rect(100, 30, 500, 100);
 			//this.fill(0x00000011);
+			
 			this.fill(0x00000011);
 			this.text("This is 3dPong",100,100,0);
 			if (highlight_row==1){
@@ -117,6 +121,10 @@ public class App extends PApplet {
 			break;
 		case INITIALISATION:
 			this.text("Put your hands up in the air.",100,100,0);
+			if (this.initialisationDoneAt != 0L) {
+				double secondsToStart = Math.max(Math.floor((2000 + initialisationDoneAt - millis())/100.0)/10, 0);
+				this.text("Game starts in " + secondsToStart ,100,200,0);
+			}
 			this.drawRecognisedPlayers();
 			this.drawCamera(0.5f);
 			this.checkInitializationDone();
@@ -127,8 +135,10 @@ public class App extends PApplet {
 			int player_count = this.gameModel.getPlayerCount();
 			this.fill(0x00000011);
 			this.text("Game over.\n\nEnd results:" ,100,100,0);
-			for (int i=0;i<player_count;i++){
-				this.text("Player "+this.gameModel.getPlayer(i).getId() +": "+this.gameModel.getPlayer(i).getPoints()+" points.",100,350+i*100,0);
+			int i = 0;
+			for (Player p : this.gameModel.getPlayers()){
+				this.text("Player " + p.getId() + ": "+p.getPoints()+" points.",100,350+i*100,0);
+				i++;
 			}
 			
 			if (highlight_row==1){
@@ -179,7 +189,12 @@ public class App extends PApplet {
 	private void checkInitializationDone() {
 		if (this.gameModel.getPlayerCount() >= this.gameMode.getNoOfPlayers()) {
 			Log.debug(this, "Initialization done");
-			this.startGame();
+			
+			if (this.initialisationDoneAt == 0L) {
+				this.initialisationDoneAt = millis();
+			} else if (this.initialisationDoneAt + 2000 < millis()) { // wait 2sec
+				this.startGame();
+			}
 		}
 	}
 
@@ -248,6 +263,7 @@ public class App extends PApplet {
 
 	public void onLostUser(int userid) {
 		Log.debug(this, "Lost user " + userid);
+		this.gameModel.removePlayer(userid);
 	}
 
 	public void onStartCalibration(int userId) {
@@ -424,7 +440,11 @@ public class App extends PApplet {
 	}
 
 	private void startInitialisation() {
+		this.gameModel.resetPlayers();
+		this.initialisationDoneAt = 0L;
+		
 		if(this.gameMode == Mode.MOUSE) {
+			this.gameModel.removePlayers();
 			this.startGame();
 			return;
 		}

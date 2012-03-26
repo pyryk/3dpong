@@ -14,7 +14,7 @@ import processing.core.PVector;
 /*just testing*/
 public class GameModel {
 
-	private List<Player> players = Collections.synchronizedList(new ArrayList<Player>());
+	private List<Player> players = Collections.synchronizedList(new ArrayList<Player>(100));
 	private boolean isGameOn;
 	private Mode mode;
 	private Ball ball;
@@ -39,6 +39,24 @@ public class GameModel {
 		int areah = app.height - H_MARGIN;
 		this.cube = new Cube(areaw, areah);	
 	}
+	
+	public void removePlayers() {
+		this.players.clear();
+	}
+	
+	public void removePlayer(int id) {
+		Player p = this.getPlayer(id);
+		this.players.remove(p);
+	}
+	
+	/**
+	 *  resets all player properties (score) but does not remove them
+	 */
+	public void resetPlayers() {
+		for (Player p : this.players) {
+			p.resetPoints();
+		}
+	}
 
 	public void startGame(Mode mode) {
 		// Restart ball for a new random staring direction etc
@@ -49,7 +67,6 @@ public class GameModel {
 			p.resetPoints();
 		}*/
 		if(mode == Mode.MOUSE) {
-			players.clear();
 			Player player1 = new Player(0);
 			this.addPlayer(player1, true);	
 			Player player2 = new Player(1);
@@ -71,7 +88,12 @@ public class GameModel {
 	}
 
 	public Player getPlayer(int id) {
-		return players.get(id);
+		for (Player p : players) {
+			if (p.getId() == id) {
+				return p;
+			}
+		}
+		return null;
 	}
 
 	public Player getActivePlayer() {
@@ -144,7 +166,7 @@ public class GameModel {
 
 			// Draw things
 			this.ball.update(this);
-			this.cube.draw(app, ball.getZ(), this.getTurn());
+			this.cube.draw(app, ball.getZ(), this.getActivePlayer().getId());
 			this.ball.draw(app);
 			for(int j = 0; j < this.players.size(); j++) {
 				Player player = this.players.get(j);

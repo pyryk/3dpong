@@ -56,14 +56,6 @@ class Cube{
 
 	void draw(PApplet app, int ballZ, int playerID){
 		
-		int r = 200 - playerID*120;
-		int g = 0 + playerID*50;
-		int b = 150 + playerID*10;
-		int a = 180;
-		
-		/*app.fill(r,g,b,a); 
-		app.stroke(r,g,b,a);*/
-		
 		// Cube outline
 		app.noFill(); 
 		app.stroke(1);
