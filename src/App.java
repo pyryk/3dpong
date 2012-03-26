@@ -121,13 +121,14 @@ public class App extends PApplet {
 			//this.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
 			break;
 		case INITIALISATION:
+			// TODO: do not show for play again
 			this.text("Put your hands up in the air.",textx,texty,0);
 			if (this.initialisationDoneAt != 0L) {
 				double secondsToStart = Math.max(Math.floor((2000 + initialisationDoneAt - millis())/100.0)/10, 0);
-				this.text("Game starts in " + secondsToStart ,100,200,0);
+				this.text("Game starts in " + secondsToStart ,textx,texty+100,0);
 			}
-			this.drawRecognisedPlayers();
-			this.drawCamera(0.5f);
+			this.drawRecognisedPlayers(textx, texty+50);
+			this.drawCamera(1.5f);
 			this.checkInitializationDone();
 			break;
 
@@ -141,7 +142,8 @@ public class App extends PApplet {
 
 			int i = 0;
 			for (Player p : this.gameModel.getPlayers()){
-				this.text("Player " + p.getId() + ": "+p.getPoints()+" points.",100,350+i*100,0);
+				texty += lineheight;
+				this.text("Player " + p.getId() + ": "+p.getPoints()+" points.",textx,texty,0);
 				i++;
 			}
 
@@ -186,13 +188,14 @@ public class App extends PApplet {
 		//rgb.resize(rgb.width/2, rgb.height/2);
 		pushMatrix();
 		scale(scale);
-		image(rgb, width, height);
+		translate(50, 150);
+		image(rgb, 0, 0);
 		popMatrix();
 	}
 
-	private void drawRecognisedPlayers() {
+	private void drawRecognisedPlayers(int textx, int texty) {
 		this.text("Players recognised: " + this.gameModel.getPlayerCount()
-				+ "/" + this.gameMode.getNoOfPlayers(), 100,150,0);
+				+ "/" + this.gameMode.getNoOfPlayers(), textx,texty,0);
 	}
 
 	private void checkInitializationDone() {
@@ -272,6 +275,7 @@ public class App extends PApplet {
 
 	public void onLostUser(int userid) {
 		Log.debug(this, "Lost user " + userid);
+		// TODO do not remove when showing results
 		this.gameModel.removePlayer(userid);
 	}
 

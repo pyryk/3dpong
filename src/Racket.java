@@ -115,7 +115,7 @@ public class Racket {
 	}
 	
 	public static int[] getColor(int playerID, boolean active) {
-		int[] colour = Colour.values()[playerID].getRGB();
+		int[] colour = Colour.values()[playerID % 5].getRGB();
 		int r = colour[0];
 		int g = colour[1];
 		int b = colour[2];
