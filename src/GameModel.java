@@ -146,7 +146,7 @@ public class GameModel {
 		} else {
 			playerStr = "Waiting for calibration";
 		}
-		app.textSize(35);
+		app.textSize(45);
 		app.fill(0xFF000000);
 		
 		int margin = 30;

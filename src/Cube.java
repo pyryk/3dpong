@@ -54,19 +54,11 @@ class Cube{
 		return this.h;
 	}
 
-	void draw(PApplet app, int ballZ, int playerID){
-		
-		int r = 200 - playerID*120;
-		int g = 0 + playerID*50;
-		int b = 150 + playerID*10;
-		int a = 180;
-		
-		/*app.fill(r,g,b,a); 
-		app.stroke(r,g,b,a);*/
-		
+	void draw(PApplet app, int ballZ, int playerID){		
 		// Cube outline
-		app.noFill(); 
-		app.stroke(1);
+		app.noFill();
+		app.stroke(100);
+		app.strokeWeight(2);
 		for (int i=0; i<6; i++){
 			app.beginShape(PConstants.QUADS);
 			for (int j=0; j<4; j++){
@@ -76,7 +68,6 @@ class Cube{
 		}
 		
 		// Ball depth cue
-		//app.stroke(0xFF11DD11);
 		int[] color = Racket.getColor(playerID, true);
 		app.stroke(color[0],color[1],color[2],color[3]);
 		
