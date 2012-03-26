@@ -173,19 +173,19 @@ public class GameModel {
 	}
 
 	private void updateCamera(App app) {
-		if (cam>=20000){
+		if (cam>=35000){
 			cam_dir = true;
 			cam_mov -= 1;	
 			cam = cam+cam_mov;				
-		}else if(cam<-20000){
+		}else if(cam<-35000){
 			cam_dir = false;
 			cam_mov += 1;	
 			cam = cam+cam_mov;
 		}else{
 			if (cam_dir){
-				cam = cam-50;
+				cam = cam-100;
 			}else{
-				cam = cam+50;
+				cam = cam+100;
 			}
 		}
 		// System.out.println(cam);
