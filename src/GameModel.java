@@ -117,27 +117,11 @@ public class GameModel {
 						
 			//app.pushMatrix();
 			
-			String playerStr;
-			if (this.getPlayerCount() > 0) {
-				playerStr = "Turn: player "+this.players.get(this.getTurn()).getId();
-			} else {
-				playerStr = "Waiting for calibration";
-			}
-			
 			// Shift overall coordinate system to the centre of the display
 			app.translate(app.width/2, app.height/2, -D_MARGIN);
-			app.textSize(35);
-			app.fill(0xFF000000);
-			app.text(this.getPlayerCount() + " players", -app.width, -app.height);
-			//System.out.println(app.height);
-			app.text(playerStr, -app.width+app.width/10, -app.height, 0);
-			app.text("Hits: "+this.hit_count, -app.width+3*app.width/10, -app.height, 0);
-			app.text("Score: ", -app.width+5*app.width/10, -app.height, 0);
-			int i = 0;
-			for(Player p : this.players) {
-				app.text(p.getPoints()+" ", i-app.width+6*app.width/10, -app.height, 0);
-				i+=app.width/20;
-			}
+			
+			// Info text
+			this.displayInfoText(app);
 			
 			//move cam			
 			this.updateCamera(app);
@@ -152,6 +136,40 @@ public class GameModel {
 			}
 			//app.popMatrix();
 		}
+	}
+
+	private void displayInfoText(App app) {
+		String playerStr;
+		
+		if (this.getPlayerCount() > 0) {
+			playerStr = "Turn: player "+this.players.get(this.getTurn()).getId();
+		} else {
+			playerStr = "Waiting for calibration";
+		}
+		app.textSize(35);
+		app.fill(0xFF000000);
+		
+		int margin = 30;
+		float textx = -app.width;
+		int texty = -app.height;
+		String displayString = this.getPlayerCount() + " players";
+		app.text(displayString, textx, texty);
+		
+		textx += app.textWidth(displayString) + margin;
+		app.text(playerStr, textx, texty);
+		
+		displayString = "Hits: "+this.hit_count;
+		textx += app.textWidth(playerStr) + margin;
+		app.text(displayString, textx, texty);
+
+		textx += app.textWidth(displayString) + margin;
+		displayString = "Score: ";
+		for(Player p : this.players) {
+			displayString += p.getPoints()+" - ";
+		}
+		displayString = displayString.substring(0, displayString.length()-2);
+		app.text(displayString, textx, texty);
+
 	}
 
 	private void updateCamera(App app) {
