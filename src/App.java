@@ -22,7 +22,7 @@ public class App extends PApplet {
 	static enum Phase {
 		MENU, INITIALISATION, GAME, END;
 	}
-	
+
 	private int highlight_row;
 	private Phase phase;
 	private Mode gameMode;
@@ -69,7 +69,7 @@ public class App extends PApplet {
 	public void draw() {
 		lights();
 		background(255);
-		
+
 		// update the cam
 		if (KINECT_AVAILABLE) {
 			context.update();
@@ -130,7 +130,7 @@ public class App extends PApplet {
 			for (int i=0;i<player_count;i++){
 				this.text("Player "+this.gameModel.getPlayer(i).getId() +": "+this.gameModel.getPlayer(i).getPoints()+" points.",100,350+i*100,0);
 			}
-			
+
 			if (highlight_row==1){
 				this.fill(0xFFDD1111);	
 			}else{
@@ -152,10 +152,12 @@ public class App extends PApplet {
 			break;
 
 		case GAME:
-			this.updatePlayers(this);
-			this.gameModel.update(this);
-			if (!this.gameModel.isGame()){
-				this.phase = Phase.END;
+			if(this.gameModel.isGame()) {
+				this.updatePlayers(this);
+				this.gameModel.update(this);
+				if (!this.gameModel.isGame()){
+					this.phase = Phase.END;
+				}
 			}
 			break;
 		}
@@ -170,12 +172,12 @@ public class App extends PApplet {
 		image(rgb, width, height);
 		popMatrix();
 	}
-	
+
 	private void drawRecognisedPlayers() {
 		this.text("Players recognised: " + this.gameModel.getPlayerCount()
 				+ "/" + this.gameMode.getNoOfPlayers(), 100,150,0);
 	}
-	
+
 	private void checkInitializationDone() {
 		if (this.gameModel.getPlayerCount() >= this.gameMode.getNoOfPlayers()) {
 			Log.debug(this, "Initialization done");
@@ -418,8 +420,8 @@ public class App extends PApplet {
 				if (highlight_row==0){highlight_row=3;}
 				break;				
 			}			
-			default:
-				break;
+		default:
+			break;
 		}
 	}
 

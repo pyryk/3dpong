@@ -218,7 +218,7 @@ public class GameModel {
 		}
 		
 		this.players.get(this.getTurn()).givePoint();
-		if (this.players.get(this.getTurn()).getPoints()==3){
+		if (this.isGameOn && this.players.get(this.getTurn()).getPoints()==3){
 		
 			this.endGame();
 		}
