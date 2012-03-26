@@ -142,7 +142,7 @@ public class GameModel {
 		String playerStr;
 		
 		if (this.getPlayerCount() > 0) {
-			playerStr = "Turn: player "+this.players.get(this.getTurn()).getId();
+			playerStr = "Turn: "+Colour.values()[this.players.get(this.getTurn()).getId()];
 		} else {
 			playerStr = "Waiting for calibration";
 		}
@@ -154,12 +154,9 @@ public class GameModel {
 		int texty = -app.height;
 		String displayString = this.getPlayerCount() + " players";
 		app.text(displayString, textx, texty);
-		
+
 		textx += app.textWidth(displayString) + margin;
-		app.text(playerStr, textx, texty);
-		
 		displayString = "Hits: "+this.hit_count;
-		textx += app.textWidth(playerStr) + margin;
 		app.text(displayString, textx, texty);
 
 		textx += app.textWidth(displayString) + margin;
@@ -169,6 +166,9 @@ public class GameModel {
 		}
 		displayString = displayString.substring(0, displayString.length()-2);
 		app.text(displayString, textx, texty);
+		
+		textx += app.textWidth(displayString) + margin;
+		app.text(playerStr, textx, texty);
 
 	}
 
@@ -236,7 +236,7 @@ public class GameModel {
 		}
 		
 		this.players.get(this.getTurn()).givePoint();
-		if (this.isGameOn && this.players.get(this.getTurn()).getPoints()==3){
+		if (this.isGameOn && this.players.get(this.getTurn()).getPoints()==1){
 		
 			this.endGame();
 		}

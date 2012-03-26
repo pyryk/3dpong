@@ -77,7 +77,7 @@ class Cube{
 		
 		// Ball depth cue
 		//app.stroke(0xFF11DD11);
-		int[] color = Racket.getColor(playerID, app, true);
+		int[] color = Racket.getColor(playerID, true);
 		app.stroke(color[0],color[1],color[2],color[3]);
 		
 		app.strokeWeight(4f);

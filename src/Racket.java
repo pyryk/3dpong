@@ -114,21 +114,19 @@ public class Racket {
 		return false;
 	}
 	
-	public static int[] getColor(int playerID, PApplet app, boolean active) {
-		int r = 200 - playerID*120;
-		int g = 0 + playerID*50;
-		int b = 150 + playerID*10;
+	public static int[] getColor(int playerID, boolean active) {
+		int[] colour = Colour.values()[playerID].getRGB();
+		int r = colour[0];
+		int g = colour[1];
+		int b = colour[2];
 		int a = active ? 180 : 20;
 		
 		return new int[] {r,g,b,a};
-		
-		
-		//app.stroke(255,0,0,255);
 	}
 
 	public void draw(PApplet app, boolean active) {
 		
-		int[] color = getColor(this.playerID, app, active);
+		int[] color = getColor(this.playerID, active);
 		
 		app.fill(color[0],color[1],color[2],color[3]); 
 		app.stroke(color[0],color[1],color[2],color[3]);
