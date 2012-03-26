@@ -143,7 +143,7 @@ public class App extends PApplet {
 			int i = 0;
 			for (Player p : this.gameModel.getPlayers()){
 				texty += lineheight;
-				this.text("Player " + p.getId() + ": "+p.getPoints()+" points.",textx,texty,0);
+				this.text("Player " + Colour.values()[p.getId()] + ": "+p.getPoints()+" points.",textx,texty,0);
 				i++;
 			}
 
