@@ -16,6 +16,10 @@ public class App extends PApplet {
 	GameModel gameModel;
 	
 	long initialisationDoneAt = 0L;
+	
+	boolean showInit;
+	
+	List<Player> scoreChartPlayers = new ArrayList<Player>();
 
 	PVector referencePosition;
 	public static boolean KINECT_AVAILABLE = true;
@@ -36,6 +40,8 @@ public class App extends PApplet {
 		this.highlight_row = 1;
 		this.gameModel = new GameModel(this);
 		this.phase = Phase.MENU;
+		
+		this.showInit = true;
 
 		// enable logging
 		Log.enabled = true;
@@ -141,7 +147,7 @@ public class App extends PApplet {
 			this.text("End results:", textx, texty, 0);
 
 			int i = 0;
-			for (Player p : this.gameModel.getPlayers()){
+			for (Player p : this.scoreChartPlayers){
 				texty += lineheight;
 				this.text("Player " + Colour.values()[p.getId()] + ": "+p.getPoints()+" points.",textx,texty,0);
 				i++;
@@ -176,6 +182,8 @@ public class App extends PApplet {
 				this.gameModel.update(this);
 				if (!this.gameModel.isGame()){
 					this.phase = Phase.END;
+					this.scoreChartPlayers.clear();
+					this.scoreChartPlayers.addAll(this.gameModel.getPlayers());
 				}
 			}
 			break;
@@ -261,7 +269,6 @@ public class App extends PApplet {
 			}
 		}
 
-		// TODO calculate average position for all hands
 		if (allHands.size() > 0) {
 			PVector vect = allHands.get(0);
 			this.referencePosition = new PVector(vect.x, vect.y, vect.z);
@@ -275,7 +282,6 @@ public class App extends PApplet {
 
 	public void onLostUser(int userid) {
 		Log.debug(this, "Lost user " + userid);
-		// TODO do not remove when showing results
 		this.gameModel.removePlayer(userid);
 	}
 
@@ -287,15 +293,13 @@ public class App extends PApplet {
 		Log.debug(this, "onEndCalibration - userId: " + userId
 				+ ", successfull: " + successfull);
 
-		if (successfull && this.gameMode.getNoOfPlayers() >= this.gameModel.getPlayerCount()) {
-			// TODO player adding only pregame
+		if (successfull && this.gameMode.getNoOfPlayers() > this.gameModel.getPlayerCount()) {
 			Log.debug(this, "User calibrated !!!");
 			this.gameModel.addPlayer(new Player(userId));
 			context.startTrackingSkeleton(userId);
 			Log.debug(this, "User added to players.");
 
 			// recalibrate positions
-			// TODO this should only be done when game is not on
 			this.referencePosition = null;
 		} else {
 			Log.debug(this, "  Failed to calibrate user !!!");
@@ -389,7 +393,7 @@ public class App extends PApplet {
 		case MENU :
 			switch (e.getKeyCode()) {
 			case 'N' :
-				this.startInitialisation();
+				this.startInitialisation(true);
 				break;
 			case 'M' :
 				this.gameMode = Mode.next(this.gameMode);
@@ -399,7 +403,7 @@ public class App extends PApplet {
 				break;
 			case ENTER :
 				if (highlight_row==1){
-					this.startInitialisation();
+					this.startInitialisation(true);
 				}else if(highlight_row==2){
 					this.gameMode = Mode.next(this.gameMode);
 				}else if(highlight_row==3){
@@ -421,9 +425,11 @@ public class App extends PApplet {
 		case END :
 			switch (e.getKeyCode()) {
 			case 'N' :
-				this.startInitialisation();
+				this.showInit = false;
+				this.startInitialisation(false);
 				break;
 			case 'M' :
+				this.showInit = true;
 				this.phase = Phase.MENU;
 				break;
 			case 'Q' :
@@ -431,7 +437,7 @@ public class App extends PApplet {
 				break;
 			case ENTER :
 				if (highlight_row==1){
-					this.startInitialisation();
+					this.startInitialisation(false);
 				}else if(highlight_row==2){
 					this.phase = Phase.MENU;
 				}else if(highlight_row==3){
@@ -452,12 +458,14 @@ public class App extends PApplet {
 		}
 	}
 
-	private void startInitialisation() {
+	private void startInitialisation(boolean showInit) {
 		this.gameModel.resetPlayers();
 		this.initialisationDoneAt = 0L;
 		
-		if(this.gameMode == Mode.MOUSE) {
-			this.gameModel.removePlayers();
+		if(!showInit || this.gameMode == Mode.MOUSE) {
+			if (this.gameMode == Mode.MOUSE) {
+				this.gameModel.removePlayers();
+			}
 			this.startGame();
 			return;
 		}
