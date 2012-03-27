@@ -1,6 +1,8 @@
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import SimpleOpenNI.*;
 import processing.core.PApplet;
@@ -14,15 +16,15 @@ public class App extends PApplet {
 	SimpleOpenNI context;
 
 	GameModel gameModel;
-	
+
 	long initialisationDoneAt = 0L;
 
 	PVector referencePosition;
-	public static boolean KINECT_AVAILABLE = true;
+	public static boolean KINECT_AVAILABLE = false;
 	//public static boolean KINECT_AVAILABLE = false;
 
 	static enum Phase {
-		MENU, INITIALISATION, GAME, END;
+		MENU, INITIALISATION, GAME, END, SCORES;
 	}
 
 	private int highlight_row;
@@ -64,12 +66,10 @@ public class App extends PApplet {
 		}
 
 		background(200, 0, 0);
-
-		//this.gameModel.startGame();
 	}
 
 	public void draw() {
-		
+
 		lights();
 		background(255);
 
@@ -100,7 +100,7 @@ public class App extends PApplet {
 			}else{
 				this.fill(0x00000011);	
 			}
-			
+
 			texty += lineheight*2;
 			this.text("Start a "+ this.gameMode + " game",textx,texty,0);
 			if (highlight_row==2){
@@ -111,6 +111,13 @@ public class App extends PApplet {
 			texty += lineheight;
 			this.text("Select mode",textx,texty,0);
 			if (highlight_row==3){
+				this.fill(0xFFDD1111);	
+			}else{
+				this.fill(0x00000011);	
+			}
+			texty += lineheight;
+			this.text("Show high scores",textx,texty,0);
+			if (highlight_row==4){
 				this.fill(0xFFDD1111);	
 			}else{
 				this.fill(0x00000011);	
@@ -134,7 +141,6 @@ public class App extends PApplet {
 
 		case END:
 			camera();
-			int player_count = this.gameModel.getPlayerCount();
 			this.fill(0x00000011);
 			this.text("Game over." ,textx,texty,0);
 			texty += lineheight;
@@ -179,6 +185,20 @@ public class App extends PApplet {
 				}
 			}
 			break;
+		case SCORES:
+			camera();
+			this.fill(0x00000011);
+			this.text("High scores for " + this.gameMode + " games" ,textx,texty,0);
+
+			texty += lineheight;
+			for(HighScore s : this.gameModel.getScores(this.gameMode)){
+				texty += lineheight;
+				this.text(s.toString().replaceAll("&", " "), textx, texty, 0);
+			}
+
+			texty += lineheight *2;
+			this.text("Press any key to return",textx,texty,0);
+			break;
 		}
 	}
 
@@ -201,7 +221,7 @@ public class App extends PApplet {
 	private void checkInitializationDone() {
 		if (this.gameModel.getPlayerCount() >= this.gameMode.getNoOfPlayers()) {
 			Log.debug(this, "Initialization done");
-			
+
 			if (this.initialisationDoneAt == 0L) {
 				this.initialisationDoneAt = millis();
 			} else if (this.initialisationDoneAt + 2000 < millis()) { // wait 2sec
@@ -394,6 +414,9 @@ public class App extends PApplet {
 			case 'M' :
 				this.gameMode = Mode.next(this.gameMode);
 				break;
+			case 'S' :
+				this.showHighScores();
+				break;
 			case 'Q' :
 				System.exit(0);
 				break;
@@ -403,16 +426,18 @@ public class App extends PApplet {
 				}else if(highlight_row==2){
 					this.gameMode = Mode.next(this.gameMode);
 				}else if(highlight_row==3){
+					this.showHighScores();
+				}else if(highlight_row==4){
 					System.exit(0);
 				}
 				break;
 			case DOWN :
 				highlight_row+=1;
-				if (highlight_row==4){highlight_row=1;}
+				if (highlight_row==5){highlight_row=1;}
 				break;
 			case UP :
 				highlight_row-=1;
-				if (highlight_row==0){highlight_row=3;}
+				if (highlight_row==0){highlight_row=4;}
 				break;
 			default:
 				break;
@@ -446,16 +471,24 @@ public class App extends PApplet {
 				highlight_row-=1;
 				if (highlight_row==0){highlight_row=3;}
 				break;				
-			}			
+			}
+			break;
+		case SCORES:
+			this.phase = Phase.MENU;
+			break;
 		default:
 			break;
 		}
 	}
 
+	private void showHighScores() {
+		this.phase = Phase.SCORES;
+	}
+
 	private void startInitialisation() {
 		this.gameModel.resetPlayers();
 		this.initialisationDoneAt = 0L;
-		
+
 		if(this.gameMode == Mode.MOUSE) {
 			this.gameModel.removePlayers();
 			this.startGame();

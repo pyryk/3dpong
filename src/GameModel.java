@@ -1,6 +1,9 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -24,10 +27,12 @@ public class GameModel {
 	private boolean cam_dir;
 	private int turn;		// index (in list players) of the player whose turn it is currently
 	private int hit_count;
-	
+
 	public static final int W_MARGIN = 20;
 	public static final int H_MARGIN = 60;
 	public static final int D_MARGIN = 20;
+
+	private Map<Mode, HighScoreTable> highscores;
 
 	public GameModel(PApplet app) {
 		this.isGameOn = false;
@@ -38,17 +43,23 @@ public class GameModel {
 		int areaw = app.width - W_MARGIN;
 		int areah = app.height - H_MARGIN;
 		this.cube = new Cube(areaw, areah);	
+
+		this.highscores = new HashMap<Mode, HighScoreTable>();
+		for(Mode m : Mode.values()) {
+			highscores.put(m, new HighScoreTable(
+					"highscores_" + m.toString().toLowerCase().replaceAll(" ", "_") + ".txt"));
+		}
 	}
-	
+
 	public void removePlayers() {
 		this.players.clear();
 	}
-	
+
 	public void removePlayer(int id) {
 		Player p = this.getPlayer(id);
 		this.players.remove(p);
 	}
-	
+
 	/**
 	 *  resets all player properties (score) but does not remove them
 	 */
@@ -77,8 +88,20 @@ public class GameModel {
 
 	public void endGame() {
 		this.isGameOn = false;
+		this.saveScore();
 	}
-	
+
+	private void saveScore() {
+		Date date = new Date(System.currentTimeMillis());
+		HighScoreTable table = this.highscores.get(this.mode);
+		for(Player p : this.players) {
+			HighScore s = new HighScore(Colour.values()[p.getId()].toString(), 
+					date, p.getPoints());
+			table.addScore(s);
+		}
+		table.saveScores();
+	}
+
 	public boolean isGame() {
 		return this.isGameOn;
 	}
@@ -100,7 +123,7 @@ public class GameModel {
 		if (this.getPlayerCount() == 0) {
 			return null;
 		}
-		
+
 		return this.players.get(this.turn);
 	}
 
@@ -114,16 +137,16 @@ public class GameModel {
 
 		return players.indexOf(player);
 	}
-	
+
 	public int addPlayer(Player player) {
 		this.turn = players.indexOf(player);
 		return this.addPlayer(player, false);
 	}
-	
+
 	public int getTurn(){
 		return this.turn;
 	}
-	
+
 	public void setTurn(){
 		this.turn+=1;
 		if (this.turn==this.getPlayerCount()){
@@ -131,20 +154,25 @@ public class GameModel {
 		}
 	}
 
+	public HighScoreTable getScores(Mode gameMode) {
+		HighScoreTable table = this.highscores.get(gameMode);
+		return table;
+	}
+
 	/**
 	 * Called for every frame from draw().
 	 */
 	public void update(App app) {
 		if(isGameOn) {
-						
+
 			//app.pushMatrix();
-			
+
 			// Shift overall coordinate system to the centre of the display
 			app.translate(app.width/2, app.height/2, -D_MARGIN);
-			
+
 			// Info text
 			this.displayInfoText(app);
-			
+
 			//move cam			
 			this.updateCamera(app);
 
@@ -162,7 +190,7 @@ public class GameModel {
 
 	private void displayInfoText(App app) {
 		String playerStr;
-		
+
 		if (this.getPlayerCount() > 0) {
 			playerStr = "Turn: "+Colour.values()[this.players.get(this.getTurn()).getId()];
 		} else {
@@ -170,7 +198,7 @@ public class GameModel {
 		}
 		app.textSize(45);
 		app.fill(0xFF000000);
-		
+
 		int margin = 30;
 		float textx = -app.width;
 		int texty = -app.height;
@@ -188,7 +216,7 @@ public class GameModel {
 		}
 		displayString = displayString.substring(0, displayString.length()-2);
 		app.text(displayString, textx, texty);
-		
+
 		textx += app.textWidth(displayString) + margin;
 		app.text(playerStr, textx, texty);
 
@@ -252,14 +280,13 @@ public class GameModel {
 			}
 		}
 		this.hit_count = 0;
-		
+
 		if (this.getPlayerCount() == 0) {
 			return;
 		}
-		
+
 		this.players.get(this.getTurn()).givePoint();
-		if (this.isGameOn && this.players.get(this.getTurn()).getPoints()==1){
-		
+		if (this.isGameOn && this.players.get(this.getTurn()).getPoints()==3){		
 			this.endGame();
 		}
 	}

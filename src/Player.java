@@ -8,7 +8,7 @@ public class Player {
 
 	private int id;
 	private List<Racket> rackets;
-	private int points;
+	private int points;				// number of hits
 
 	public Player(int id) {
 		this.setId(id);
