@@ -76,7 +76,6 @@ public class App extends PApplet {
 		// update the cam
 		if (KINECT_AVAILABLE) {
 			context.update();
-			//this.drawCamera(0.5f);
 		}
 
 		// draw depthImageMap
@@ -124,11 +123,8 @@ public class App extends PApplet {
 			}
 			texty += lineheight;
 			this.text("End game",textx,texty,0);
-
-			//this.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
 			break;
 		case INITIALISATION:
-			// TODO: do not show for play again
 			this.text("Put your hands up in the air.",textx,texty,0);
 			if (this.initialisationDoneAt != 0L) {
 				double secondsToStart = Math.max(Math.floor((2000 + initialisationDoneAt - millis())/100.0)/10, 0);
@@ -205,7 +201,6 @@ public class App extends PApplet {
 	private void drawCamera(float scale) {
 		// draw camera
 		PImage rgb = context.rgbImage();
-		//rgb.resize(rgb.width/2, rgb.height/2);
 		pushMatrix();
 		scale(scale);
 		translate(50, 150);
@@ -248,8 +243,7 @@ public class App extends PApplet {
 
 			for (Player player : this.gameModel.getPlayers()) {
 				if (KINECT_AVAILABLE && context.isTrackingSkeleton(player.getId())) {
-					// Log.debug(this, "Drawing skeleton for player " +
-					// player.getId());
+					// Log.debug(this, "Drawing skeleton for player " + player.getId());
 					drawSkeleton(player.getId());
 					PVector[] hands = getUserHands(player.getId());
 					player.setRacketPositions(hands);
@@ -281,7 +275,6 @@ public class App extends PApplet {
 			}
 		}
 
-		// TODO calculate average position for all hands
 		if (allHands.size() > 0) {
 			PVector vect = allHands.get(0);
 			this.referencePosition = new PVector(vect.x, vect.y, vect.z);
@@ -295,7 +288,6 @@ public class App extends PApplet {
 
 	public void onLostUser(int userid) {
 		Log.debug(this, "Lost user " + userid);
-		// TODO do not remove when showing results
 		this.gameModel.removePlayer(userid);
 	}
 
@@ -308,14 +300,12 @@ public class App extends PApplet {
 				+ ", successfull: " + successfull);
 
 		if (successfull && this.gameMode.getNoOfPlayers() >= this.gameModel.getPlayerCount()) {
-			// TODO player adding only pregame
 			Log.debug(this, "User calibrated !!!");
 			this.gameModel.addPlayer(new Player(userId));
 			context.startTrackingSkeleton(userId);
 			Log.debug(this, "User added to players.");
 
 			// recalibrate positions
-			// TODO this should only be done when game is not on
 			this.referencePosition = null;
 		} else {
 			Log.debug(this, "  Failed to calibrate user !!!");
@@ -393,7 +383,6 @@ public class App extends PApplet {
 		rightHand.y = -rightHand.y;
 		context.convertProjectiveToRealWorld(leftHand, leftHandWorld);
 		context.convertProjectiveToRealWorld(rightHand, rightHandWorld);
-		//PVector[] hands = { leftHandWorld, rightHandWorld };
 		PVector[] hands = { leftHand, rightHand };
 		//Log.debug(this, "Left hand " + hands[0]);
 		//Log.debug(this, "Right hand " + hands[1]);

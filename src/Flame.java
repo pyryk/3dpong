@@ -1,8 +1,10 @@
 import processing.core.PApplet;
 import processing.core.PVector;
 
-/*
+/**
  * This class draws flames of the ball.
+ * @author Ville
+ *
  */
 public class Flame {
 	

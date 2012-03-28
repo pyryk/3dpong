@@ -14,7 +14,6 @@ import processing.core.PVector;
  *
  */
 
-/*just testing*/
 public class GameModel {
 
 	private List<Player> players = Collections.synchronizedList(new ArrayList<Player>(100));
@@ -74,9 +73,6 @@ public class GameModel {
 		this.ball = new Ball(this.cube.getW(), this.cube.getH());
 		this.isGameOn = true;
 		this.mode = mode;
-		/*for(Player p : this.players) {
-			p.resetPoints();
-		}*/
 		if(mode == Mode.MOUSE) {
 			Player player1 = new Player(0);
 			this.addPlayer(player1, true);	
@@ -166,7 +162,6 @@ public class GameModel {
 		if(isGameOn) {
 
 			//app.pushMatrix();
-
 			// Shift overall coordinate system to the centre of the display
 			app.translate(app.width/2, app.height/2, -D_MARGIN);
 
@@ -219,7 +214,6 @@ public class GameModel {
 
 		textx += app.textWidth(displayString) + margin;
 		app.text(playerStr, textx, texty);
-
 	}
 
 	private void updateCamera(App app) {
@@ -238,7 +232,6 @@ public class GameModel {
 				cam = cam+100;
 			}
 		}
-		// System.out.println(cam);
 		app.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
 	}
 
@@ -273,12 +266,12 @@ public class GameModel {
 	}
 
 	public void ballEscaped(Ball b) {
-		Log.debug(this, "Ball at ["+ b.getX() + ", " + b.getY() + ", " + b.getZ() + "] escaped");
+		/*Log.debug(this, "Ball at ["+ b.getX() + ", " + b.getY() + ", " + b.getZ() + "] escaped");
 		for (Player p : this.getPlayers()) {
 			for (Racket r : p.getRackets()) {
 				Log.debug(this, "\t racket at " + r.getDimensions()[0] + "; " + r.getDimensions()[1]);
 			}
-		}
+		}*/
 		this.hit_count = 0;
 
 		if (this.getPlayerCount() == 0) {

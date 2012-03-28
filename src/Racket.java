@@ -15,7 +15,6 @@ public class Racket {
 	private PVector mov;	// movement (averaged over a few last frames)
 
 	private int playerID;
-
 	private int width, height, thickness;
 
 	// Percentage of the width and height of the Racket that is considered "centre"
@@ -124,19 +123,11 @@ public class Racket {
 		return new int[] {r,g,b,a};
 	}
 
-	public void draw(PApplet app, boolean active) {
-		
+	public void draw(PApplet app, boolean active) {		
 		int[] color = getColor(this.playerID, active);
 		
 		app.fill(color[0],color[1],color[2],color[3]); 
 		app.stroke(color[0],color[1],color[2],color[3]);
-
-		// app.pushMatrix();
-		// Shift overall coordinate system to the centre of the display
-		// app.translate(width/2, height/2, -GameModel.D_MARGIN);
-		// popMatrix();
-
-		//Log.debug(this, "Drawing racket " + this.pos);
 
 		app.pushMatrix();
 		app.translate(this.pos.x, this.pos.y, this.pos.z);
@@ -145,6 +136,4 @@ public class Racket {
 		app.box(width*centreSize, height*centreSize, thickness);
 		app.popMatrix();
 	}
-
 }
-

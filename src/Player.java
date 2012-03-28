@@ -3,6 +3,11 @@ import java.util.List;
 
 import processing.core.PVector;
 
+/**
+ * Represents one Player in the game.
+ * @author Ville
+ *
+ */
 
 public class Player {
 
@@ -87,6 +92,5 @@ public class Player {
 
 	public void addRacket(PVector pos) {
 		this.rackets.add(new Racket(this.id, pos));
-
 	}
 }

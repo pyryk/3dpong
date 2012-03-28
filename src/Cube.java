@@ -1,5 +1,10 @@
 import processing.core.*;
 
+/**
+ * This class draws the cube.
+ * @author Ville
+ *
+ */
 class Cube{
 
 	public static final int DEPTH = 2500;
