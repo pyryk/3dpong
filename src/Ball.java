@@ -28,7 +28,7 @@ public class Ball {
 	private AudioClip fail_sound;
 
 	public Ball(int areaw, int areah) {
-		this.speed = 30;
+		this.speed = 60;
 		this.areaw = areaw;
 		this.areah = areah;
 		flames = new ArrayList<Flame>();

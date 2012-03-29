@@ -1,6 +1,8 @@
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import SimpleOpenNI.*;
 import processing.core.PApplet;
@@ -14,19 +16,18 @@ public class App extends PApplet {
 	SimpleOpenNI context;
 
 	GameModel gameModel;
-	
+
 	long initialisationDoneAt = 0L;
-	
+
 	boolean showInit;
-	
-	List<Player> scoreChartPlayers = new ArrayList<Player>();
 
 	PVector referencePosition;
 	public static boolean KINECT_AVAILABLE = true;
-	//public static boolean KINECT_AVAILABLE = false;
+
+	// public static boolean KINECT_AVAILABLE = false;
 
 	static enum Phase {
-		MENU, INITIALISATION, GAME, END;
+		MENU, INITIALISATION, GAME, END, SCORES;
 	}
 
 	private int highlight_row;
@@ -36,11 +37,12 @@ public class App extends PApplet {
 	public void setup() {
 
 		size(screen.width, screen.height, P3D);
+		frameRate = 30;
 
 		this.highlight_row = 1;
 		this.gameModel = new GameModel(this);
 		this.phase = Phase.MENU;
-		
+
 		this.showInit = true;
 
 		// enable logging
@@ -56,7 +58,7 @@ public class App extends PApplet {
 		// enable depthMap generation
 		if (KINECT_AVAILABLE && context.enableDepth() == false) {
 			Log.error(this,
-			"Can't open the depthMap, maybe the camera is not connected!");
+					"Can't open the depthMap, maybe the camera is not connected!");
 			exit();
 			return;
 		}
@@ -70,122 +72,149 @@ public class App extends PApplet {
 		}
 
 		background(200, 0, 0);
-
-		//this.gameModel.startGame();
 	}
 
 	public void draw() {
-		
+
 		lights();
 		background(255);
 
 		// update the cam
 		if (KINECT_AVAILABLE) {
 			context.update();
-			//this.drawCamera(0.5f);
+			// this.drawCamera(0.5f);
 		}
 
 		// draw depthImageMap
-		//image(context.depthImage(), 0, 0);
+		// image(context.depthImage(), 0, 0);
 
 		// Log.debug(this, "Users found: " + context.getNumberOfUsers());
 
-		PFont font = createFont("DejaVu Sans",50);
-		textFont(font, 50); 
+		PFont font = createFont("DejaVu Sans", 50);
+		textFont(font, 50);
 
 		this.noStroke();
 		int texty = 100;
 		int textx = 100;
 		int lineheight = 70;
-		switch(this.phase) {
-		case MENU :
+		switch (this.phase) {
+		case MENU:
 			this.fill(0x00000011);
-			this.text("This is 3dPong",textx,texty,0);
-			if (highlight_row==1){
-				this.fill(0xFFDD1111);	
-			}else{
-				this.fill(0x00000011);	
+			this.text("This is 3dPong", textx, texty, 0);
+			if (highlight_row == 1) {
+				this.fill(0xFFDD1111);
+			} else {
+				this.fill(0x00000011);
 			}
-			
-			texty += lineheight*2;
-			this.text("Start a "+ this.gameMode + " game",textx,texty,0);
-			if (highlight_row==2){
-				this.fill(0xFFDD1111);	
-			}else{
-				this.fill(0x00000011);	
-			}
-			texty += lineheight;
-			this.text("Select mode",textx,texty,0);
-			if (highlight_row==3){
-				this.fill(0xFFDD1111);	
-			}else{
-				this.fill(0x00000011);	
-			}
-			texty += lineheight;
-			this.text("End game",textx,texty,0);
 
-			//this.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
+			texty += lineheight * 2;
+			this.text("Start a " + this.gameMode + " game", textx, texty, 0);
+			if (highlight_row == 2) {
+				this.fill(0xFFDD1111);
+			} else {
+				this.fill(0x00000011);
+			}
+			texty += lineheight;
+			this.text("Select mode", textx, texty, 0);
+			if (highlight_row == 3) {
+				this.fill(0xFFDD1111);
+			} else {
+				this.fill(0x00000011);
+			}
+			texty += lineheight;
+			this.text("Show high scores", textx, texty, 0);
+			if (highlight_row == 4) {
+				this.fill(0xFFDD1111);
+			} else {
+				this.fill(0x00000011);
+			}
+			texty += lineheight;
+			this.text("End game", textx, texty, 0);
+
+			// this.camera(cam/200,0, Cube.DEPTH/2, 0,0,-Cube.DEPTH, 0, 1, 0);
 			break;
 		case INITIALISATION:
 			// TODO: do not show for play again
-			this.text("Put your hands up in the air.",textx,texty,0);
+			this.text("Put your hands up in the air.", textx, texty, 0);
 			if (this.initialisationDoneAt != 0L) {
-				double secondsToStart = Math.max(Math.floor((2000 + initialisationDoneAt - millis())/100.0)/10, 0);
-				this.text("Game starts in " + secondsToStart ,textx,texty+100,0);
+				double secondsToStart = Math
+						.max(Math
+								.floor((2000 + initialisationDoneAt - millis()) / 100.0) / 10,
+								0);
+				this.text("Game starts in " + secondsToStart, textx,
+						texty + 100, 0);
 			}
-			this.drawRecognisedPlayers(textx, texty+50);
+			this.drawRecognisedPlayers(textx, texty + 50);
 			this.drawCamera(1.5f);
 			this.checkInitializationDone();
 			break;
 
 		case END:
 			camera();
-			int player_count = this.gameModel.getPlayerCount();
 			this.fill(0x00000011);
-			this.text("Game over." ,textx,texty,0);
+			this.text("Game over.", textx, texty, 0);
 			texty += lineheight;
 			this.text("End results:", textx, texty, 0);
 
 			int i = 0;
-			for (Player p : this.scoreChartPlayers){
+			Map<Player, Boolean> chart = this.gameModel.getScoreChartPlayers();
+			for (Player p : chart.keySet()) {
+				boolean isHighScore = chart.get(p);
 				texty += lineheight;
-				this.text("Player " + Colour.values()[p.getId()] + ": "+p.getPoints()+" points.",textx,texty,0);
+				String line = "Player " + Colour.values()[p.getId()] + ": "
+								+ p.getPoints() + " points.";
+				if(isHighScore) line += " New high score!";
+				this.text(line, textx, texty, 0);
 				i++;
 			}
 
-			if (highlight_row==1){
-				this.fill(0xFFDD1111);	
-			}else{
-				this.fill(0x00000011);	
+			if (highlight_row == 1) {
+				this.fill(0xFFDD1111);
+			} else {
+				this.fill(0x00000011);
 			}
 			texty += lineheight * 2;
-			this.text("Play again",textx,texty,0);
-			if (highlight_row==2){
-				this.fill(0xFFDD1111);	
-			}else{
-				this.fill(0x00000011);	
-			}
-			texty += lineheight;
-			this.text("Go to menu",textx,texty,0);
-			if (highlight_row==3){
-				this.fill(0xFFDD1111);	
+			this.text("Play again", textx, texty, 0);
+			if (highlight_row == 2) {
+				this.fill(0xFFDD1111);
 			} else {
-				this.fill(0x00000011);	
+				this.fill(0x00000011);
 			}
 			texty += lineheight;
-			this.text("End game",textx,texty,0);
+			this.text("Go to menu", textx, texty, 0);
+			if (highlight_row == 3) {
+				this.fill(0xFFDD1111);
+			} else {
+				this.fill(0x00000011);
+			}
+			texty += lineheight;
+			this.text("End game", textx, texty, 0);
 			break;
 
 		case GAME:
-			if(this.gameModel.isGame()) {
+			if (this.gameModel.isGame()) {
 				this.updatePlayers(this);
 				this.gameModel.update(this);
-				if (!this.gameModel.isGame()){
+				if (!this.gameModel.isGame()) {
 					this.phase = Phase.END;
-					this.scoreChartPlayers.clear();
-					this.scoreChartPlayers.addAll(this.gameModel.getPlayers());
+					//this.gameModel.scoreChartPlayers.clear();
 				}
 			}
+			break;
+		case SCORES:
+			camera();
+			this.fill(0x00000011);
+			this.text("High scores for " + this.gameMode + " games", textx,
+					texty, 0);
+
+			texty += lineheight;
+			for (HighScore s : this.gameModel.getScores(this.gameMode)) {
+				texty += lineheight;
+				this.text(s.toString().replaceAll("&", " "), textx, texty, 0);
+			}
+
+			texty += lineheight * 2;
+			this.text("Press any key to return", textx, texty, 0);
 			break;
 		}
 	}
@@ -193,7 +222,7 @@ public class App extends PApplet {
 	private void drawCamera(float scale) {
 		// draw camera
 		PImage rgb = context.rgbImage();
-		//rgb.resize(rgb.width/2, rgb.height/2);
+		// rgb.resize(rgb.width/2, rgb.height/2);
 		pushMatrix();
 		scale(scale);
 		translate(50, 150);
@@ -203,30 +232,33 @@ public class App extends PApplet {
 
 	private void drawRecognisedPlayers(int textx, int texty) {
 		this.text("Players recognised: " + this.gameModel.getPlayerCount()
-				+ "/" + this.gameMode.getNoOfPlayers(), textx,texty,0);
+				+ "/" + this.gameMode.getNoOfPlayers(), textx, texty, 0);
 	}
 
 	private void checkInitializationDone() {
 		if (this.gameModel.getPlayerCount() >= this.gameMode.getNoOfPlayers()) {
 			Log.debug(this, "Initialization done");
-			
+
 			if (this.initialisationDoneAt == 0L) {
 				this.initialisationDoneAt = millis();
-			} else if (this.initialisationDoneAt + 2000 < millis()) { // wait 2sec
+			} else if (this.initialisationDoneAt + 2000 < millis()) { // wait
+																		// 2sec
 				this.startGame();
 			}
 		}
 	}
 
 	public void updatePlayers(App app) {
-		if(this.gameMode == Mode.MOUSE && this.gameModel.isGame()) {
+		if (this.gameMode == Mode.MOUSE && this.gameModel.isGame()) {
 			Player activePlayer = this.gameModel.getActivePlayer();
 			if (activePlayer != null) {
-				if (activePlayer.getRacketPositions().length > 0) {					
-					PVector pos = this.gameModel.get3DCoordinates(mouseX, mouseY, app);
+				if (activePlayer.getRacketPositions().length > 0) {
+					PVector pos = this.gameModel.get3DCoordinates(mouseX,
+							mouseY, app);
 					activePlayer.setRacketPosition(0, pos);
 				} else {
-					activePlayer.addRacket(new PVector(mouseX, mouseY, Racket.Z_POS));
+					activePlayer.addRacket(new PVector(mouseX, mouseY,
+							Racket.Z_POS));
 				}
 			}
 		} else {
@@ -235,20 +267,22 @@ public class App extends PApplet {
 			List<PVector> allHands = new ArrayList<PVector>();
 
 			for (Player player : this.gameModel.getPlayers()) {
-				if (KINECT_AVAILABLE && context.isTrackingSkeleton(player.getId())) {
+				if (KINECT_AVAILABLE
+						&& context.isTrackingSkeleton(player.getId())) {
 					// Log.debug(this, "Drawing skeleton for player " +
 					// player.getId());
 					drawSkeleton(player.getId());
 					PVector[] hands = getUserHands(player.getId());
 					player.setRacketPositions(hands);
 
-				} else if(KINECT_AVAILABLE) {
-					Log.debug(this,
-							"Not tracking skeleton for player " + player.getId());
+				} else if (KINECT_AVAILABLE) {
+					Log.debug(this, "Not tracking skeleton for player "
+							+ player.getId());
 				}
 			}
 
-			if (this.referencePosition == null && this.gameModel.getPlayerCount() > 0) {
+			if (this.referencePosition == null
+					&& this.gameModel.getPlayerCount() > 0) {
 				recalibrate();
 			}
 		}
@@ -272,7 +306,7 @@ public class App extends PApplet {
 		if (allHands.size() > 0) {
 			PVector vect = allHands.get(0);
 			this.referencePosition = new PVector(vect.x, vect.y, vect.z);
-		}		
+		}
 	}
 
 	public void onNewUser(int userid) {
@@ -293,7 +327,9 @@ public class App extends PApplet {
 		Log.debug(this, "onEndCalibration - userId: " + userId
 				+ ", successfull: " + successfull);
 
-		if (successfull && this.gameMode.getNoOfPlayers() > this.gameModel.getPlayerCount()) {
+		if (successfull
+				&& this.gameMode.getNoOfPlayers() > this.gameModel
+						.getPlayerCount()) {
 			Log.debug(this, "User calibrated !!!");
 			this.gameModel.addPlayer(new Player(userId));
 			context.startTrackingSkeleton(userId);
@@ -377,82 +413,98 @@ public class App extends PApplet {
 		rightHand.y = -rightHand.y;
 		context.convertProjectiveToRealWorld(leftHand, leftHandWorld);
 		context.convertProjectiveToRealWorld(rightHand, rightHandWorld);
-		//PVector[] hands = { leftHandWorld, rightHandWorld };
+		// PVector[] hands = { leftHandWorld, rightHandWorld };
 		PVector[] hands = { leftHand, rightHand };
-		//Log.debug(this, "Left hand " + hands[0]);
-		//Log.debug(this, "Right hand " + hands[1]);
+		// Log.debug(this, "Left hand " + hands[0]);
+		// Log.debug(this, "Right hand " + hands[1]);
 		return hands;
 	}
-
 
 	@Override
 	public void keyPressed(KeyEvent e) {
 		super.keyPressed(e);
 
-		switch(this.phase) {
-		case MENU :
+		switch (this.phase) {
+		case MENU:
 			switch (e.getKeyCode()) {
-			case 'N' :
+			case 'N':
 				this.startInitialisation(true);
 				break;
-			case 'M' :
+			case 'M':
 				this.gameMode = Mode.next(this.gameMode);
 				break;
-			case 'Q' :
+			case 'S':
+				this.showHighScores();
+				break;
+			case 'Q':
 				System.exit(0);
 				break;
-			case ENTER :
-				if (highlight_row==1){
+			case ENTER:
+				if (highlight_row == 1) {
 					this.startInitialisation(true);
-				}else if(highlight_row==2){
+				} else if (highlight_row == 2) {
 					this.gameMode = Mode.next(this.gameMode);
-				}else if(highlight_row==3){
+				} else if (highlight_row == 3) {
+					this.showHighScores();
+				} else if (highlight_row == 4) {
 					System.exit(0);
 				}
 				break;
-			case DOWN :
-				highlight_row+=1;
-				if (highlight_row==4){highlight_row=1;}
+			case DOWN:
+				highlight_row += 1;
+				if (highlight_row == 5) {
+					highlight_row = 1;
+				}
 				break;
-			case UP :
-				highlight_row-=1;
-				if (highlight_row==0){highlight_row=3;}
+			case UP:
+				highlight_row -= 1;
+				if (highlight_row == 0) {
+					highlight_row = 4;
+				}
 				break;
 			default:
 				break;
 			}
 			break;
-		case END :
+		case END:
 			switch (e.getKeyCode()) {
-			case 'N' :
+			case 'N':
 				this.showInit = false;
 				this.startInitialisation(false);
 				break;
-			case 'M' :
+			case 'M':
 				this.showInit = true;
 				this.phase = Phase.MENU;
 				break;
-			case 'Q' :
+			case 'Q':
 				System.exit(0);
 				break;
-			case ENTER :
-				if (highlight_row==1){
+			case ENTER:
+				if (highlight_row == 1) {
 					this.startInitialisation(false);
-				}else if(highlight_row==2){
+				} else if (highlight_row == 2) {
 					this.phase = Phase.MENU;
-				}else if(highlight_row==3){
+				} else if (highlight_row == 3) {
 					System.exit(0);
 				}
 				break;
-			case DOWN :
-				highlight_row+=1;
-				if (highlight_row==4){highlight_row=1;}
+			case DOWN:
+				highlight_row += 1;
+				if (highlight_row == 4) {
+					highlight_row = 1;
+				}
 				break;
-			case UP :
-				highlight_row-=1;
-				if (highlight_row==0){highlight_row=3;}
-				break;				
-			}			
+			case UP:
+				highlight_row -= 1;
+				if (highlight_row == 0) {
+					highlight_row = 3;
+				}
+				break;
+			}
+			break;
+		case SCORES:
+			this.phase = Phase.MENU;
+			break;
 		default:
 			break;
 		}
@@ -461,16 +513,19 @@ public class App extends PApplet {
 	private void startInitialisation(boolean showInit) {
 		this.gameModel.resetPlayers();
 		this.initialisationDoneAt = 0L;
-		
-		if(!showInit || this.gameMode == Mode.MOUSE) {
+
+		if (!showInit || this.gameMode == Mode.MOUSE) {
 			if (this.gameMode == Mode.MOUSE) {
 				this.gameModel.removePlayers();
 			}
 			this.startGame();
 			return;
 		}
-
 		this.phase = Phase.INITIALISATION;
+	}
+
+	private void showHighScores() {
+		this.phase = Phase.SCORES;
 	}
 
 	private void startGame() {
